@@ -2,10 +2,10 @@
 
 namespace App\Http\Resources\Post;
 
+use App\Http\Resources\BaseResource;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 
-class PostResource extends JsonResource
+class PostResource extends BaseResource
 {
     /**
      * Transform the resource into an array.

@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Post\PostStoreRequest;
 use App\Http\Requests\Post\PostUpdateRequest;
+use App\Http\Resources\ErrorResource;
 use App\Http\Resources\Post\PostCollection;
 use App\Http\Resources\Post\PostResource;
 use App\Services\PostService;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 class PostController extends Controller
 {
@@ -36,7 +36,7 @@ class PostController extends Controller
     {
         $posts = $this->postService->all();
 
-        return new PostCollection($posts);
+        return new PostCollection($posts, 'Posts retrieved successfully', Response::HTTP_OK);
     }
 
     /**
@@ -52,28 +52,34 @@ class PostController extends Controller
             'content' => $postRequestData['content'],
         ]);
 
-        return new PostResource($newPost);
+        return new PostResource($newPost, 'Post created successfully', Response::HTTP_CREATED);
     }
 
     /**
      * Display the specified resource.
      * @param string $id
-     * @return PostResource
+     * @return ErrorResource|PostResource
      */
-    public function show(string $id): PostResource
+    public function show(string $id): ErrorResource|PostResource
     {
         $post = $this->postService->getById($id);
 
-        return new PostResource($post);
+        return $post
+            ? new PostResource($post, 'Post retrieved successfully', Response::HTTP_OK)
+            : new ErrorResource(
+                ['errors' => 'Failed to retrieve post'],
+                'Internal server error',
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
     }
 
     /**
      * Update the specified resource in storage.
      * @param PostUpdateRequest $request
      * @param string $id
-     * @return JsonResponse
+     * @return ErrorResource|PostResource
      */
-    public function update(PostUpdateRequest $request, string $id): JsonResponse
+    public function update(PostUpdateRequest $request, string $id): ErrorResource|PostResource
     {
         $postRequestData = $request->validated();
         $result = $this->postService->update($id, [
@@ -82,21 +88,28 @@ class PostController extends Controller
         ]);
 
         return $result
-            ? response()->json(['message' => 'Post Update Successful'], 201)
-            : response()->json(['error' => 'Failed to update post'], 500);
+            ? new PostResource([], 'Post updated successfully', Response::HTTP_OK)
+            : new ErrorResource(
+                ['errors' => 'Failed to update post'],
+                'Internal server error',
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
     }
 
     /**
      * Remove the specified resource from storage.
      * @param string $id
-     * @return Response|JsonResponse
+     * @return ErrorResource|PostResource
      */
-    public function destroy(string $id): Response|JsonResponse
+    public function destroy(string $id): ErrorResource|PostResource
     {
         $result = $this->postService->destroy($id);
-
         return $result
-            ? response()->noContent()
-            : response()->json(['error' => 'Failed to destroy post'], 500);
+            ? new PostResource([], 'Post deleted successfully', Response::HTTP_NO_CONTENT)
+            : new ErrorResource(
+                ['errors' => 'Failed to delete post'],
+                'Internal server error',
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
     }
 }

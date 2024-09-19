@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Exceptions\ApiException;
 use App\Repositories\Interfaces\BaseInterface;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -28,12 +29,17 @@ abstract class BaseRepository implements BaseInterface
      * Get all instances of model.
      *
      * @return Collection
+     * @throws ApiException
      */
     public function all(): Collection
     {
-        return $this->model
-            ->orderBy($this->sortBy, $this->sortOrder)
-            ->get();
+        try {
+            return $this->model
+                ->orderBy($this->sortBy, $this->sortOrder)
+                ->get();
+        } catch (Exception $e) {
+            throw new ApiException($e);
+        }
     }
 
     /**
@@ -41,10 +47,15 @@ abstract class BaseRepository implements BaseInterface
      *
      * @param array $data
      * @return model
+     * @throws ApiException
      */
     public function create(array $data): Model
     {
-        return $this->model->create($data);
+        try {
+            return $this->model->create($data);
+        } catch (Exception $e) {
+            throw new ApiException($e);
+        }
     }
 
     /**
