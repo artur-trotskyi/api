@@ -1,61 +1,75 @@
 <?php
 
+// https://medium.com/@dychkosergey/access-and-refresh-tokens-using-laravel-sanctum-037392e50509
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\AuthLoginRequest;
+use App\Http\Requests\Auth\AuthRegisterRequest;
+use App\Http\Resources\Auth\AuthResource;
+use App\Http\Resources\ErrorResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    /**
+     * @param AuthRegisterRequest $request
+     * @return AuthResource
+     */
+    public function register(AuthRegisterRequest $request): AuthResource
     {
-        $fields = $request->validate([
-            'name' => 'required|max:255',
-            'email' => 'required|max:255|email|unique:users',
-            'password' => 'required|max:255|confirmed',
-        ]);
+        $registerRequestData = $request->validated();
+        $user = User::create($registerRequestData);
 
-        $user = User::create($fields);
-        $token = $user->createToken($request->name)->plainTextToken;
-
-        return [
+        $token = $user->createToken($registerRequestData['name'])->plainTextToken;
+        $userData = [
             'user' => $user,
             'token' => $token,
             'token_type' => 'Bearer'
         ];
+
+        return new AuthResource($userData, 'Register successful', Response::HTTP_OK);
     }
 
-    public function login(Request $request)
+    /**
+     * @param AuthLoginRequest $request
+     * @return ErrorResource|AuthResource
+     */
+    public function login(AuthLoginRequest $request): ErrorResource|AuthResource
     {
-        $request->validate([
-            'email' => 'required|max:255|email|exists:users,email',
-            'password' => 'required|max:255',
-        ]);
+        $loginRequestData = $request->validated();
 
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return [
-                'message' => 'The provided credentials are incorrect.',
-            ];
+        $user = User::where('email', $loginRequestData['email'])->first();
+        if (!$user || !Hash::check($loginRequestData['password'], $user->password)) {
+            return new ErrorResource(
+                ['errors' => 'The provided credentials are incorrect'],
+                'The provided credentials are incorrect',
+                Response::HTTP_UNAUTHORIZED
+            );
         }
 
         $token = $user->createToken($user->name)->plainTextToken;
-        return [
+        $userData = [
             'user' => $user,
             'token' => $token,
             'token_type' => 'Bearer'
         ];
+
+        return new AuthResource($userData, 'Login successful', Response::HTTP_OK);
     }
 
-    public function logout(Request $request)
+    /**
+     * @param Request $request
+     * @return AuthResource
+     */
+    public function logout(Request $request): AuthResource
     {
         $request->user()->tokens()->delete();
 
-        return [
-            'message' => 'You are logged out.',
-        ];
+        return new AuthResource([], 'You are logged out', Response::HTTP_OK);
     }
 }
