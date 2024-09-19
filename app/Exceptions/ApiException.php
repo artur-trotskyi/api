@@ -4,10 +4,12 @@ namespace App\Exceptions;
 
 use App\Http\Resources\ErrorResource;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
+use Symfony\Component\HttpFoundation\Response;
 
 class ApiException extends Exception
 {
@@ -23,17 +25,22 @@ class ApiException extends Exception
         switch (true) {
             case $exception instanceof InvalidArgumentException:
                 $message = 'Validation error';
-                $code = $code ?: $exception->getCode() ?: 422;
+                $code = $code ?: $exception->getCode() ?: Response::HTTP_UNPROCESSABLE_ENTITY;
                 $this->errors[] = $error ?: $exception->getMessage();
                 break;
             case $exception instanceof QueryException:
                 $message = 'Internal server error';
-                $code = $code ?: 500;
+                $code = $code ?: Response::HTTP_INTERNAL_SERVER_ERROR;
                 $this->errors[] = $error ?: 'Error processing database query';
+                break;
+            case $exception instanceof AuthorizationException:
+                $message = 'Unauthorized action';
+                $code = Response::HTTP_FORBIDDEN;
+                $this->errors[] = $error ?: $exception->getMessage();
                 break;
             default:
                 $message = 'Internal server error';
-                $code = $code ?: $exception->getCode() ?: 500;
+                $code = $code ?: $exception->getCode() ?: Response::HTTP_INTERNAL_SERVER_ERROR;
                 $this->errors[] = $error ?: 'Internal server error';
                 break;
         }

@@ -8,11 +8,22 @@ use App\Http\Requests\Post\PostUpdateRequest;
 use App\Http\Resources\ErrorResource;
 use App\Http\Resources\Post\PostCollection;
 use App\Http\Resources\Post\PostResource;
+use App\Models\Post;
 use App\Services\PostService;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
-class PostController extends Controller
+class PostController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('auth:sanctum', except: ['index', 'show']),
+        ];
+    }
+
     private PostService $postService;
 
     /**
@@ -48,6 +59,7 @@ class PostController extends Controller
     {
         $postRequestData = $request->validated();
         $newPost = $this->postService->create([
+            'user_id' => auth()->id(),
             'title' => $postRequestData['title'],
             'content' => $postRequestData['content'],
         ]);
@@ -76,13 +88,15 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      * @param PostUpdateRequest $request
-     * @param string $id
+     * @param Post $post
      * @return ErrorResource|PostResource
      */
-    public function update(PostUpdateRequest $request, string $id): ErrorResource|PostResource
+    public function update(PostUpdateRequest $request, Post $post): ErrorResource|PostResource
     {
+        Gate::authorize('modify', $post);
         $postRequestData = $request->validated();
-        $result = $this->postService->update($id, [
+        $result = $this->postService->update($post->id, [
+            'user_id' => auth()->id(),
             'title' => $postRequestData['title'],
             'content' => $postRequestData['content'],
         ]);
@@ -98,12 +112,13 @@ class PostController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     * @param string $id
+     * @param Post $post
      * @return ErrorResource|PostResource
      */
-    public function destroy(string $id): ErrorResource|PostResource
+    public function destroy(Post $post): ErrorResource|PostResource
     {
-        $result = $this->postService->destroy($id);
+        Gate::authorize('modify', $post);
+        $result = $this->postService->destroy($post->id);
         return $result
             ? new PostResource([], 'Post deleted successfully', Response::HTTP_NO_CONTENT)
             : new ErrorResource(
