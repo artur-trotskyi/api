@@ -44,10 +44,19 @@ class BaseResource extends JsonResource
             $data['updated_at'] = $this->resource->updated_at->toDateTimeString();
         }
 
+        return $data;
+    }
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    private function withResponseData(Request $request): array
+    {
         return [
             'success' => $this->success,
             'message' => $this->message,
-            'data' => $data,
+            'data' => $this->toArray($request),
         ];
     }
 
@@ -58,7 +67,7 @@ class BaseResource extends JsonResource
     public function toResponse($request): JsonResponse
     {
         return response()->json(
-            $this->toArray($request),
+            $this->withResponseData($request),
             $this->statusCode
         );
     }

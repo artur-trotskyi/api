@@ -40,7 +40,7 @@ class BaseCollection extends JsonResource
             'success' => $this->success,
             'message' => $this->message,
             'data' => $this->resource->map(function ($item) use ($request) {
-                return $item->toArray($request);
+                return (new BaseResource($item))->toArray($request);
             })->toArray(),
         ];
     }
