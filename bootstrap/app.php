@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\ApiExceptionHandler;
 use App\Http\Middleware\TransformApiRequestMiddleware;
 use App\Http\Middleware\TransformApiResponseMiddleware;
 use Illuminate\Foundation\Application;
@@ -24,10 +25,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*')) {
-                return response()->json([
-                    'status' => 'false',
-                    'message' => 'Route Not found',
-                ], 404);
+                $handler = new ApiExceptionHandler($e);
+                return $handler->render($request);
             }
+        });
+        $exceptions->render(function (Throwable $e, Request $request) {
+            $handler = new ApiExceptionHandler($e);
+            return $handler->render($request);
         });
     })->create();

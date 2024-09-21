@@ -10,6 +10,7 @@ use App\Http\Requests\Auth\AuthRegisterRequest;
 use App\Http\Resources\Auth\AuthResource;
 use App\Http\Resources\ErrorResource;
 use App\Models\User;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,6 +39,7 @@ class AuthController extends Controller
     /**
      * @param AuthLoginRequest $request
      * @return ErrorResource|AuthResource
+     * @throws AuthenticationException
      */
     public function login(AuthLoginRequest $request): ErrorResource|AuthResource
     {
@@ -45,11 +47,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $loginRequestData['email'])->first();
         if (!$user || !Hash::check($loginRequestData['password'], $user->password)) {
-            return new ErrorResource(
-                ['errors' => 'The provided credentials are incorrect'],
-                'The provided credentials are incorrect',
-                Response::HTTP_UNAUTHORIZED
-            );
+            throw new AuthenticationException('The provided credentials are incorrect.');
         }
 
         $token = $user->createToken($user->name)->plainTextToken;
