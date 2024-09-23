@@ -47,7 +47,7 @@ class ApiExceptionHandler extends Exception
             case $exception instanceof QueryException:
                 $this->message = 'Internal server error';
                 $this->code = Response::HTTP_INTERNAL_SERVER_ERROR;
-                $this->errors[] = $customError ?: 'Error processing database query';
+                $this->errors[] = $customError ?: 'Failed to retrieve data';
                 break;
             case $exception instanceof AuthorizationException || $exception instanceof AccessDeniedHttpException:
                 $this->message = 'Unauthorized action';

@@ -47,7 +47,7 @@ class PostController extends Controller implements HasMiddleware
     {
         $posts = $this->postService->all();
 
-        return new PostCollection($posts, 'Posts retrieved successfully', Response::HTTP_OK);
+        return new PostCollection($posts, 'Data retrieved successfully', Response::HTTP_OK);
     }
 
     /**
@@ -64,7 +64,7 @@ class PostController extends Controller implements HasMiddleware
             'content' => $postRequestData['content'],
         ]);
 
-        return new PostResource($newPost, 'Post created successfully', Response::HTTP_CREATED);
+        return new PostResource($newPost, 'Data created successfully', Response::HTTP_CREATED);
     }
 
     /**
@@ -77,9 +77,9 @@ class PostController extends Controller implements HasMiddleware
         $post = $this->postService->getById($id);
 
         return $post
-            ? new PostResource($post, 'Post retrieved successfully', Response::HTTP_OK)
+            ? new PostResource($post, 'Data retrieved successfully', Response::HTTP_OK)
             : new ErrorResource(
-                ['errors' => 'Failed to retrieve post'],
+                ['errors' => 'Failed to retrieve data'],
                 'Internal server error',
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
@@ -104,7 +104,7 @@ class PostController extends Controller implements HasMiddleware
         return $result
             ? new PostResource([], 'Post updated successfully', Response::HTTP_OK)
             : new ErrorResource(
-                ['errors' => 'Failed to update post'],
+                ['errors' => 'Failed to update data'],
                 'Internal server error',
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
@@ -122,7 +122,7 @@ class PostController extends Controller implements HasMiddleware
         return $result
             ? new PostResource([], 'Post deleted successfully', Response::HTTP_NO_CONTENT)
             : new ErrorResource(
-                ['errors' => 'Failed to delete post'],
+                ['errors' => 'Failed to delete data'],
                 'Internal server error',
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
