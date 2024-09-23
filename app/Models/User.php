@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -32,6 +33,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'email_verified_at',
+        'deleted_at',
     ];
 
     /**
@@ -45,6 +48,42 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * @param $value
+     * @return string
+     */
+    public function getCreatedAtAttribute($value): string
+    {
+        return Carbon::parse($value)->toDateTimeString();
+    }
+
+    /**
+     * @param $value
+     * @return string
+     */
+    public function getUpdatedAtAttribute($value): string
+    {
+        return Carbon::parse($value)->toDateTimeString();
+    }
+
+    /**
+     * @param $value
+     * @return string
+     */
+    public function getDeletedAtAttribute($value): string
+    {
+        return Carbon::parse($value)->toDateTimeString();
+    }
+
+    /**
+     * @param $value
+     * @return string
+     */
+    public function getEmailVerifiedAtAttribute($value): string
+    {
+        return Carbon::parse($value)->toDateTimeString();
     }
 
     /**

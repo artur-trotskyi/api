@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -35,16 +34,7 @@ class BaseResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $data = is_array($this->resource) ? $this->resource : $this->resource->toArray();
-
-        if (!empty($this->resource->created_at) && $this->resource->created_at instanceof Carbon) {
-            $data['created_at'] = $this->resource->created_at->toDateTimeString();
-        }
-        if (!empty($this->resource->updated_at) && $this->resource->updated_at instanceof Carbon) {
-            $data['updated_at'] = $this->resource->updated_at->toDateTimeString();
-        }
-
-        return $data;
+        return is_array($this->resource) ? $this->resource : $this->resource->toArray();
     }
 
     /**
