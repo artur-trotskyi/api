@@ -4,16 +4,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Constants\AppConstants;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\AuthLoginRequest;
 use App\Http\Requests\Auth\AuthRegisterRequest;
 use App\Http\Resources\Auth\AuthResource;
-use App\Http\Resources\ErrorResource;
 use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
@@ -33,21 +32,21 @@ class AuthController extends Controller
             'token_type' => 'Bearer'
         ];
 
-        return new AuthResource($userData, 'Register successful', Response::HTTP_OK);
+        return new AuthResource($userData, AppConstants::RESOURCE_MESSAGES['register_successful']);
     }
 
     /**
      * @param AuthLoginRequest $request
-     * @return ErrorResource|AuthResource
+     * @return AuthResource
      * @throws AuthenticationException
      */
-    public function login(AuthLoginRequest $request): ErrorResource|AuthResource
+    public function login(AuthLoginRequest $request): AuthResource
     {
         $loginRequestData = $request->validated();
 
         $user = User::where('email', $loginRequestData['email'])->first();
         if (!$user || !Hash::check($loginRequestData['password'], $user->password)) {
-            throw new AuthenticationException('The provided credentials are incorrect.');
+            throw new AuthenticationException(AppConstants::EXCEPTION_MESSAGES['the_provided_credentials_are_incorrect']);
         }
 
         $token = $user->createToken($user->name)->plainTextToken;
@@ -57,7 +56,7 @@ class AuthController extends Controller
             'token_type' => 'Bearer'
         ];
 
-        return new AuthResource($userData, 'Login successful', Response::HTTP_OK);
+        return new AuthResource($userData, AppConstants::RESOURCE_MESSAGES['login_successful']);
     }
 
     /**
@@ -68,6 +67,6 @@ class AuthController extends Controller
     {
         $request->user()->tokens()->delete();
 
-        return new AuthResource([], 'You are logged out', Response::HTTP_OK);
+        return new AuthResource([], AppConstants::RESOURCE_MESSAGES['you_are_logged_out']);
     }
 }

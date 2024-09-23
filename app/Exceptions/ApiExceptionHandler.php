@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\Constants\AppConstants;
 use App\Http\Resources\ErrorResource;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -23,56 +24,54 @@ class ApiExceptionHandler extends Exception
      * Constructor for exception handling
      *
      * @param Exception|Throwable $exception
-     * @param string|null $customError
      */
-    public function __construct(Exception|Throwable $exception, string $customError = null)
+    public function __construct(Exception|Throwable $exception)
     {
-        $this->handle($exception, $customError);
+        $this->handle($exception);
     }
 
     /**
      * Handle exceptions and set the appropriate message and code
      *
      * @param Exception|Throwable $exception
-     * @param string|null $customError
      */
-    public function handle(Exception|Throwable $exception, string $customError = null): void
+    public function handle(Exception|Throwable $exception): void
     {
         switch (true) {
             case $exception instanceof InvalidArgumentException:
-                $this->message = 'Validation error';
+                $this->message = AppConstants::EXCEPTION_MESSAGES['validation_error'];
                 $this->code = Response::HTTP_UNPROCESSABLE_ENTITY;
-                $this->errors[] = $customError ?: $exception->getMessage();
+                $this->errors[] = $exception->getMessage();
                 break;
             case $exception instanceof QueryException:
-                $this->message = 'Internal server error';
+                $this->message = AppConstants::EXCEPTION_MESSAGES['internal_server_error'];
                 $this->code = Response::HTTP_INTERNAL_SERVER_ERROR;
-                $this->errors[] = $customError ?: 'Failed to retrieve data';
+                $this->errors[] = AppConstants::EXCEPTION_MESSAGES['failed_to_retrieve_data'];
                 break;
-            case $exception instanceof AuthorizationException || $exception instanceof AccessDeniedHttpException:
-                $this->message = 'Unauthorized action';
+            case $exception instanceof AccessDeniedHttpException || $exception instanceof AuthorizationException:
+                $this->message = AppConstants::EXCEPTION_MESSAGES['unauthorized_action'];
                 $this->code = Response::HTTP_FORBIDDEN;
-                $this->errors[] = $customError ?: $exception->getMessage();
+                $this->errors[] = $exception->getMessage();
                 break;
             case $exception instanceof AuthenticationException:
-                $this->message = 'Unauthenticated';
+                $this->message = $exception->getMessage();
                 $this->code = Response::HTTP_UNAUTHORIZED;
-                $this->errors[] = $customError ?: $exception->getMessage();
+                $this->errors[] = AppConstants::EXCEPTION_MESSAGES['authentication_required'];
                 break;
             case $exception instanceof ValidationException:
-                $this->message = 'Validation error';
+                $this->message = AppConstants::EXCEPTION_MESSAGES['the_given_data_was_invalid'];
                 $this->code = Response::HTTP_UNPROCESSABLE_ENTITY;
-                $this->errors[] = $customError ?: $exception->errors();
+                $this->errors[] = $exception->getMessage();
                 break;
             case $exception instanceof NotFoundHttpException:
-                $this->message = 'Not Found';
+                $this->message = AppConstants::EXCEPTION_MESSAGES['not_found'];
                 $this->code = Response::HTTP_NOT_FOUND;
-                $this->errors[] = $customError ?: 'Route Not found';
+                $this->errors[] = AppConstants::EXCEPTION_MESSAGES['resource_not_found'];
                 break;
             default:
-                $this->message = 'Internal server error';
+                $this->message = AppConstants::EXCEPTION_MESSAGES['internal_server_error'];
                 $this->code = Response::HTTP_INTERNAL_SERVER_ERROR;
-                $this->errors[] = $customError ?: 'An unknown error occurred';
+                $this->errors[] = AppConstants::EXCEPTION_MESSAGES['an_unknown_error_occurred'];
                 break;
         }
     }

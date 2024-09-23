@@ -2,20 +2,18 @@
 
 namespace App\Policies;
 
+use App\Constants\AppConstants;
 use App\Models\Post;
 use App\Models\User;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\Access\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class PostPolicy
 {
-    /**
-     * @throws AuthorizationException
-     */
     public function modify(User $user, Post $post): Response
     {
-        if ($user->id !== $post->user_id) {
-            throw new AuthorizationException('You do not own this post');
+        if ($user->getAttribute('id') !== $post->getAttribute('user_id')) {
+            throw new AccessDeniedHttpException(AppConstants::EXCEPTION_MESSAGES['authorization_for_data']);
         }
 
         return Response::allow();

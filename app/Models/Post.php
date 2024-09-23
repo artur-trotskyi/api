@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\HasCustomUuids;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Post extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, HasCustomUuids, SoftDeletes;
 
     public bool $timestamp = true;
 

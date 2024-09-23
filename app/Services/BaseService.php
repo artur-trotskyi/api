@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Constants\AppConstants;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class BaseService
 {
@@ -46,7 +49,16 @@ class BaseService
      */
     public function getById(string $id): ?Model
     {
-        return $this->repo->getById($id);
+        if (!Str::isUuid($id)) {
+            throw new NotFoundHttpException(AppConstants::EXCEPTION_MESSAGES['invalid_uuid_with_field']);
+        }
+
+        $model = $this->repo->getById($id);
+        if (!$model) {
+            throw new NotFoundHttpException(AppConstants::EXCEPTION_MESSAGES['data_not_found']);
+        }
+
+        return $model;
     }
 
     /**

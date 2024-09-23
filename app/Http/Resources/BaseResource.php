@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Constants\AppConstants;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -16,7 +17,7 @@ class BaseResource extends JsonResource
     public function __construct
     (
         mixed  $resource,
-        string $message = 'Request processed successfully',
+        string $message = AppConstants::RESOURCE_MESSAGES['default_successfully'],
         int    $statusCode = Response::HTTP_OK,
         bool   $success = true
     )

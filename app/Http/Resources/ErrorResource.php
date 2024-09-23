@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Constants\AppConstants;
 use Symfony\Component\HttpFoundation\Response;
 
 class ErrorResource extends BaseResource
@@ -13,7 +14,7 @@ class ErrorResource extends BaseResource
     public function __construct
     (
         $resource,
-        string $message = 'Bad Request',
+        string $message = AppConstants::RESOURCE_MESSAGES['default_failed'],
         int $statusCode = Response::HTTP_BAD_REQUEST,
         bool $success = false
     )
