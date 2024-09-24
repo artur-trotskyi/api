@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Enums\TokenAbility;
 use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Cookie\CookieJar;
+use Illuminate\Foundation\Application;
+use Symfony\Component\HttpFoundation\Cookie;
 
 class AuthService extends BaseService
 {
@@ -34,5 +37,18 @@ class AuthService extends BaseService
             'accessToken' => $accessToken->plainTextToken,
             'refreshToken' => $refreshToken->plainTextToken,
         ];
+    }
+
+    /**
+     * Generates a secure refresh token cookie.
+     * 
+     * @param string $refreshToken
+     * @return Application|CookieJar|Cookie
+     */
+    public function generateRefreshTokenCookie(string $refreshToken): Application|CookieJar|Cookie
+    {
+        $rtExpireTime = config('sanctum.rt_expiration');
+
+        return cookie('refreshToken', $refreshToken, $rtExpireTime, secure: config('app.is_production'));
     }
 }

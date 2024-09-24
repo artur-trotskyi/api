@@ -1,6 +1,7 @@
 <?php
 
 // https://medium.com/@dychkosergey/access-and-refresh-tokens-using-laravel-sanctum-037392e50509
+// https://medium.com/@marcboko.uriel/manage-refresh-token-and-acces-token-with-laravel-sanctum-85defbce46ed
 
 namespace App\Http\Controllers\Api;
 
@@ -44,8 +45,7 @@ class AuthController extends Controller
         $user = User::create($registerRequestData);
 
         $tokens = $this->authService->generateTokens($user);
-        $rtExpireTime = config('sanctum.rt_expiration');
-        $cookie = cookie('refreshToken', $tokens['refreshToken'], $rtExpireTime, secure: config('app.is_production'));
+        $cookie = $this->authService->generateRefreshTokenCookie($tokens['refreshToken']);
 
         $userData = [
             'user' => $user,
@@ -73,8 +73,7 @@ class AuthController extends Controller
         }
 
         $tokens = $this->authService->generateTokens($user);
-        $rtExpireTime = config('sanctum.rt_expiration');
-        $cookie = cookie('refreshToken', $tokens['refreshToken'], $rtExpireTime, secure: config('app.is_production'));
+        $cookie = $this->authService->generateRefreshTokenCookie($tokens['refreshToken']);
 
         $userData = [
             'user' => $user,
@@ -108,10 +107,9 @@ class AuthController extends Controller
     {
         $user = Auth::user();
         $request->user()->tokens()->delete();
-        $tokens = $this->authService->generateTokens($user);
 
-        $rtExpireTime = config('sanctum.rt_expiration');
-        $cookie = cookie('refreshToken', $tokens['refreshToken'], $rtExpireTime, secure: config('app.is_production'));
+        $tokens = $this->authService->generateTokens($user);
+        $cookie = $this->authService->generateRefreshTokenCookie($tokens['refreshToken']);
 
         $userData = [
             'access_token' => $tokens['accessToken'],
