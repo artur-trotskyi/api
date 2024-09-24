@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Constants\AppConstants;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Post\PostFilterRequest;
 use App\Http\Requests\Post\PostStoreRequest;
 use App\Http\Requests\Post\PostUpdateRequest;
 use App\Http\Resources\Post\PostCollection;
@@ -42,11 +43,20 @@ class PostController extends Controller implements HasMiddleware
     /**
      * Display a listing of the resource.
      *
+     * @param PostFilterRequest $request
      * @return PostCollection
      */
-    public function index(): PostCollection
+    public function index(PostFilterRequest $request): PostCollection
     {
-        $posts = $this->postService->all();
+        $q = $request->validated('q');
+        $itemsPerPage = $request->validated('itemsPerPage');
+        $page = $request->validated('page');
+        $title = $request->validated('title');
+        $content = $request->validated('content');
+        $sortBy = $request->validated('sortBy');
+        $orderBy = $request->validated('orderBy');
+
+        $posts = $this->postService->filter($q, $itemsPerPage, $page, $title, $content, $sortBy, $orderBy);
 
         return new PostCollection($posts, AppConstants::RESOURCE_MESSAGES['data_retrieved_successfully']);
     }

@@ -35,4 +35,6 @@ interface AppConstants
         'login_successful' => 'Login successful.',
         'you_are_logged_out' => 'You are logged out.',
     ];
+
+    public const int ALL = -1;
 }
