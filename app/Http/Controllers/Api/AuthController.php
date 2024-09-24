@@ -10,37 +10,60 @@ use App\Http\Requests\Auth\AuthLoginRequest;
 use App\Http\Requests\Auth\AuthRegisterRequest;
 use App\Http\Resources\Auth\AuthResource;
 use App\Models\User;
+use App\Services\AuthService;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    private AuthService $authService;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct
+    (
+        AuthService $authService
+    )
+    {
+        $this->authService = $authService;
+    }
+
     /**
      * @param AuthRegisterRequest $request
-     * @return AuthResource
+     * @return JsonResponse
      */
-    public function register(AuthRegisterRequest $request): AuthResource
+    public function register(AuthRegisterRequest $request): JsonResponse
     {
         $registerRequestData = $request->validated();
         $user = User::create($registerRequestData);
 
-        $token = $user->createToken($registerRequestData['name'])->plainTextToken;
+        $tokens = $this->authService->generateTokens($user);
+        $rtExpireTime = config('sanctum.rt_expiration');
+        $cookie = cookie('refreshToken', $tokens['refreshToken'], $rtExpireTime, secure: config('app.is_production'));
+
         $userData = [
             'user' => $user,
-            'token' => $token,
+            'access_token' => $tokens['accessToken'],
             'token_type' => 'Bearer'
         ];
 
-        return new AuthResource($userData, AppConstants::RESOURCE_MESSAGES['register_successful']);
+        return (new AuthResource($userData, AppConstants::RESOURCE_MESSAGES['register_successful']))
+            ->response()
+            ->withCookie($cookie);
     }
 
     /**
      * @param AuthLoginRequest $request
-     * @return AuthResource
+     * @return JsonResponse
      * @throws AuthenticationException
      */
-    public function login(AuthLoginRequest $request): AuthResource
+    public function login(AuthLoginRequest $request): JsonResponse
     {
         $loginRequestData = $request->validated();
 
@@ -49,14 +72,19 @@ class AuthController extends Controller
             throw new AuthenticationException(AppConstants::EXCEPTION_MESSAGES['the_provided_credentials_are_incorrect']);
         }
 
-        $token = $user->createToken($user->name)->plainTextToken;
+        $tokens = $this->authService->generateTokens($user);
+        $rtExpireTime = config('sanctum.rt_expiration');
+        $cookie = cookie('refreshToken', $tokens['refreshToken'], $rtExpireTime, secure: config('app.is_production'));
+
         $userData = [
             'user' => $user,
-            'token' => $token,
+            'access_token' => $tokens['accessToken'],
             'token_type' => 'Bearer'
         ];
 
-        return new AuthResource($userData, AppConstants::RESOURCE_MESSAGES['login_successful']);
+        return (new AuthResource($userData, AppConstants::RESOURCE_MESSAGES['login_successful']))
+            ->response()
+            ->withCookie($cookie);
     }
 
     /**
@@ -68,5 +96,30 @@ class AuthController extends Controller
         $request->user()->tokens()->delete();
 
         return new AuthResource([], AppConstants::RESOURCE_MESSAGES['you_are_logged_out']);
+    }
+
+    /**
+     * Refresh access token.
+     *
+     * Accept `{refreshToken: string}` from cookies.
+     * @response array{data: array{accessToken: string}, status: bool}
+     */
+    public function refresh(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        $request->user()->tokens()->delete();
+        $tokens = $this->authService->generateTokens($user);
+
+        $rtExpireTime = config('sanctum.rt_expiration');
+        $cookie = cookie('refreshToken', $tokens['refreshToken'], $rtExpireTime, secure: config('app.is_production'));
+
+        $userData = [
+            'access_token' => $tokens['accessToken'],
+            'token_type' => 'Bearer'
+        ];
+
+        return (new AuthResource($userData, AppConstants::RESOURCE_MESSAGES['login_successful']))
+            ->response()
+            ->withCookie($cookie);
     }
 }
