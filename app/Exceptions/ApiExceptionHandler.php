@@ -4,7 +4,6 @@ namespace App\Exceptions;
 
 use App\Constants\AppConstants;
 use App\Http\Resources\ErrorResource;
-use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\QueryException;
@@ -16,16 +15,18 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
-class ApiExceptionHandler extends Exception
+class ApiExceptionHandler
 {
     protected array $errors = [];
+    protected string $message = '';
+    protected int $code = Response::HTTP_NOT_FOUND;
 
     /**
      * Constructor for exception handling
      *
-     * @param Exception|Throwable $exception
+     * @param Throwable $exception
      */
-    public function __construct(Exception|Throwable $exception)
+    public function __construct(Throwable $exception)
     {
         $this->handle($exception);
     }
@@ -33,9 +34,9 @@ class ApiExceptionHandler extends Exception
     /**
      * Handle exceptions and set the appropriate message and code
      *
-     * @param Exception|Throwable $exception
+     * @param Throwable $exception
      */
-    public function handle(Exception|Throwable $exception): void
+    public function handle(Throwable $exception): void
     {
         switch (true) {
             case $exception instanceof InvalidArgumentException:
