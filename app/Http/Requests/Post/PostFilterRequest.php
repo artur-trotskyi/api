@@ -30,6 +30,7 @@ class PostFilterRequest extends FormRequest
             'page' => ['required', 'integer', 'min:1'],
             'title' => ['sometimes', 'nullable', 'string'],
             'content' => ['sometimes', 'nullable', 'string'],
+            'tags' => ['sometimes', 'nullable', 'string', Rule::in(AppConstants::TAGS)],
             'sortBy' => ['sometimes', 'nullable', 'string'],
             'orderBy' => ['sometimes', 'nullable', 'string', Rule::in(['asc', 'desc'])],
         ];

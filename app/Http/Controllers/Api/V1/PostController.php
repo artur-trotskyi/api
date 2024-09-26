@@ -1,5 +1,7 @@
 <?php
 
+//https://madewithlove.com/blog/how-to-integrate-elasticsearch-in-your-laravel-app-2022/
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Constants\AppConstants;
@@ -74,6 +76,7 @@ class PostController extends Controller implements HasMiddleware
             'user_id' => auth()->id(),
             'title' => $postRequestData['title'],
             'content' => $postRequestData['content'],
+            'tags' => $postRequestData['tags'],
         ]);
 
         return new PostResource($newPost, AppConstants::RESOURCE_MESSAGES['data_created_successfully'], Response::HTTP_CREATED);
@@ -107,6 +110,7 @@ class PostController extends Controller implements HasMiddleware
             'user_id' => auth()->id(),
             'title' => $postRequestData['title'],
             'content' => $postRequestData['content'],
+            'tags' => $postRequestData['tags'],
         ]);
 
         return new PostResource([], AppConstants::RESOURCE_MESSAGES['data_updated_successfully']);

@@ -2,12 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Constants\AppConstants;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Post>
+ * @extends Factory<Post>
  */
 class PostFactory extends Factory
 {
@@ -24,6 +25,8 @@ class PostFactory extends Factory
             'user_id' => User::inRandomOrder()->first()->id ?? User::factory(),
             'title' => $this->faker->sentence,
             'content' => $this->faker->paragraph,
+            'tags' => collect(AppConstants::TAGS)
+                ->random(2)->values()->all(),
         ];
     }
 }

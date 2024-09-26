@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Post;
 
+use App\Constants\AppConstants;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class PostStoreRequest extends FormRequest
 {
@@ -25,6 +27,7 @@ class PostStoreRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string', 'max:65535'],
+            'tags' => ['required', 'string', Rule::in(AppConstants::TAGS)],
         ];
     }
 }

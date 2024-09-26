@@ -37,4 +37,5 @@ interface AppConstants
     ];
 
     public const int ALL = -1;
+    public const array TAGS = ['php', 'ruby', 'java', 'javascript', 'bash'];
 }
