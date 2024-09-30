@@ -18,9 +18,7 @@ trait Searchable
      */
     public static function bootSearchable(): void
     {
-        if (config('services.search.enabled')) {
-            static::observe(ElasticsearchObserver::class);
-        }
+        static::observe(ElasticsearchObserver::class);
     }
 
     /**
@@ -36,7 +34,6 @@ trait Searchable
     {
         $elasticsearchClient->index([
             'index' => $this->getTable(),
-            'type' => '_doc',
             'id' => $this->getKey(),
             'body' => $this->toElasticsearchDocumentArray(),
         ]);
@@ -55,7 +52,6 @@ trait Searchable
     {
         $elasticsearchClient->delete([
             'index' => $this->getTable(),
-            'type' => '_doc',
             'id' => $this->getKey(),
         ]);
     }

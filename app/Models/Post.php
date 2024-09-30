@@ -116,4 +116,9 @@ class Post extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function toSearchArray(): array
+    {
+        return $this->toArray();
+    }
 }
