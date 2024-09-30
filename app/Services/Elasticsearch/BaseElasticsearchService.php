@@ -71,6 +71,19 @@ class BaseElasticsearchService
     }
 
     /**
+     * Delete a document from the specified index by its ID.
+     *
+     * @param string $index The name of the Elasticsearch index.
+     * @param string $id The ID of the document to delete.
+     * @return bool True on success, false on failure.
+     * @throws Exception If an unexpected error occurs.
+     */
+    public function deleteDocument(string $index, string $id): bool
+    {
+        return $this->repo->deleteDocument($index, $id);
+    }
+
+    /**
      * Perform bulk indexing of documents in Elasticsearch.
      *
      * @param array $bulkData The bulk data to be indexed.

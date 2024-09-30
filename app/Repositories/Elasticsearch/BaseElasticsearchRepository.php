@@ -191,6 +191,33 @@ abstract class BaseElasticsearchRepository
     }
 
     /**
+     * Delete a document from the specified index by its ID.
+     *
+     * @param string $index The name of the Elasticsearch index.
+     * @param string $id The ID of the document to delete.
+     * @return bool True on success, false on failure.
+     * @throws Exception If an unexpected error occurs.
+     */
+    public function deleteDocument(string $index, string $id): bool
+    {
+        try {
+            $response = $this->elasticsearch->delete([
+                'index' => $index,
+                'id' => $id,
+            ]);
+
+            return $response->getStatusCode() === Response::HTTP_OK;
+
+        } catch (ClientResponseException|ServerResponseException|MissingParameterException|NoNodeAvailableException $e) {
+            Log::error("Error deleting document with ID {$id} from index {$index}: " . $e->getMessage());
+            return false;
+        } catch (Exception $e) {
+            Log::error("Unexpected error when deleting document with ID {$id} from index {$index}: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Perform bulk indexing of documents in Elasticsearch.
      *
      * @param array $bulkData The bulk data to be indexed.
