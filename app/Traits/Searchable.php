@@ -67,6 +67,11 @@ trait Searchable
      */
     abstract public function toElasticsearchDocumentArray(): array;
 
-
+    /**
+     * Get the name of the Elasticsearch index associated with the model.
+     *
+     * @return string The name of the index.
+     */
+    abstract static function getSearchIndex(): string;
 }
 

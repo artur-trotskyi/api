@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Cache;
 
 class PostService extends BaseService
 {
+    /**
+     * Create a new PostService instance.
+     *
+     * @param PostRepository $repo The repository for managing posts.
+     */
     public function __construct
     (
         PostRepository $repo
@@ -16,6 +21,8 @@ class PostService extends BaseService
     }
 
     /**
+     * Filter and paginate posts based on various criteria.
+     *
      * @param string|null $q
      * @param int $itemsPerPage
      * @param int $page

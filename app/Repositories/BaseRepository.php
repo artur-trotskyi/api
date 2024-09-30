@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Repositories\Interfaces\BaseInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\LazyCollection;
 
 abstract class BaseRepository implements BaseInterface
 {
@@ -33,6 +34,16 @@ abstract class BaseRepository implements BaseInterface
         return $this->model
             ->orderBy($this->sortBy, $this->sortOrder)
             ->get();
+    }
+
+    /**
+     * Get a cursor for the model.
+     *
+     * @return LazyCollection
+     */
+    public function cursor(): LazyCollection
+    {
+        return $this->model->orderBy($this->sortBy, $this->sortOrder)->cursor();
     }
 
     /**

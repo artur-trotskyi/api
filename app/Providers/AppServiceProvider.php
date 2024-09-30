@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Enums\TokenAbility;
 use App\Http\Resources\ErrorResource;
+use Elastic\Elasticsearch\Client;
+use Elastic\Elasticsearch\ClientBuilder;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
@@ -19,7 +21,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(Client::class, function () {
+            return ClientBuilder::create()
+                ->setHosts(config('elasticsearch.hosts'))
+                ->setBasicAuthentication(config('elasticsearch.user'), config('elasticsearch.pass'))
+                ->build();
+        });
     }
 
     /**

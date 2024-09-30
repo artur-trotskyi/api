@@ -101,9 +101,9 @@ class Post extends Model
      *
      * @return string
      */
-    public function getSearchIndex(): string
+    public static function getSearchIndex(): string
     {
-        return 'posts';
+        return (new Post)->getTable();
     }
 
     /**
