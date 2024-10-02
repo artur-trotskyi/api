@@ -101,10 +101,12 @@ class BaseElasticsearchService
      * @param int $itemsPerPage
      * @param int $page
      * @param array $strictFilters
+     * @param string|null $sortBy
+     * @param string|null $orderBy
      * @return array A collection of search results.
      */
-    public function search(string|null $query, int $itemsPerPage, int $page, array $strictFilters): array
+    public function search(string|null $query, int $itemsPerPage, int $page, array $strictFilters, string|null $sortBy, string|null $orderBy): array
     {
-        return $this->repo->search($query, $itemsPerPage, $page, $strictFilters);
+        return $this->repo->search($query, $itemsPerPage, $page, $strictFilters, $sortBy, $orderBy);
     }
 }

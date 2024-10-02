@@ -41,11 +41,13 @@ class PostElasticsearchRepository extends BaseElasticsearchRepository
      * @param int $itemsPerPage
      * @param int $page
      * @param array $strictFilters
+     * @param string|null $sortBy
+     * @param string|null $orderBy
      * @param array $fields Fields to search within.
      * @return array The raw search results from Elasticsearch.
      */
-    protected function searchOnElasticsearch(string|null $query, int $itemsPerPage, int $page, array $strictFilters, array $fields): array
+    protected function searchOnElasticsearch(string|null $query, int $itemsPerPage, int $page, array $strictFilters, string|null $sortBy, string|null $orderBy, array $fields): array
     {
-        return parent::searchOnElasticsearch($query, $itemsPerPage, $page, $strictFilters, ['title^5', 'content', 'tags']);
+        return parent::searchOnElasticsearch($query, $itemsPerPage, $page, $strictFilters, $sortBy, $orderBy, ['title^5', 'content', 'tags']);
     }
 }

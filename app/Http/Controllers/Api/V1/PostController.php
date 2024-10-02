@@ -1,7 +1,5 @@
 <?php
 
-//https://madewithlove.com/blog/how-to-integrate-elasticsearch-in-your-laravel-app-2022/
-
 namespace App\Http\Controllers\Api\V1;
 
 use App\Constants\AppConstants;
@@ -62,8 +60,8 @@ class PostController extends Controller implements HasMiddleware
         $sortBy = $request->validated('sortBy');
         $orderBy = $request->validated('orderBy');
 
-        $posts = $this->postElasticsearchService->search($q, $itemsPerPage, $page, ['title' => $title, 'content' => $content]);
-        $posts = $this->postService->filter($q, $itemsPerPage, $page, $title, $content, $sortBy, $orderBy);
+        $posts = $this->postElasticsearchService->search($q, $itemsPerPage, $page, ['title' => $title, 'content' => $content], $sortBy, $orderBy);
+        //$posts = $this->postService->filter($q, $itemsPerPage, $page, $title, $content, $sortBy, $orderBy);
 
         return new PostCollection($posts, AppConstants::RESOURCE_MESSAGES['data_retrieved_successfully']);
     }

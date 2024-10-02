@@ -37,12 +37,14 @@ abstract class BaseElasticsearchRepository
      * @param int $itemsPerPage
      * @param int $page
      * @param array $strictFilters
+     * @param string|null $sortBy
+     * @param string|null $orderBy
      * @param array $fields
      * @return array A collection of search results.
      */
-    public function search(string|null $query, int $itemsPerPage, int $page, array $strictFilters, array $fields = []): array
+    public function search(string|null $query, int $itemsPerPage, int $page, array $strictFilters, string|null $sortBy, string|null $orderBy, array $fields = []): array
     {
-        return $this->searchOnElasticsearch($query, $itemsPerPage, $page, $strictFilters, $fields);
+        return $this->searchOnElasticsearch($query, $itemsPerPage, $page, $strictFilters, $sortBy, $orderBy, $fields);
     }
 
     /**
@@ -194,10 +196,12 @@ abstract class BaseElasticsearchRepository
      * @param int $itemsPerPage
      * @param int $page
      * @param array $strictFilters
+     * @param string|null $sortBy
+     * @param string|null $orderBy
      * @param array $fields Fields to search within.
      * @return array The raw search results from Elasticsearch.
      */
-    protected function searchOnElasticsearch(string|null $query, int $itemsPerPage, int $page, array $strictFilters, array $fields): array
+    protected function searchOnElasticsearch(string|null $query, int $itemsPerPage, int $page, array $strictFilters, string|null $sortBy, string|null $orderBy, array $fields): array
     {
         try {
             $from = ($page - 1) * $itemsPerPage;
@@ -236,19 +240,33 @@ abstract class BaseElasticsearchRepository
                 ];
             }
 
+            // Forming the body for the request
+            $body = [
+                'from' => $from,
+                'size' => $itemsPerPage,
+                'query' => [
+                    'bool' => $boolQuery,
+                ],
+            ];
+
+            // Adding sort if both $sortBy and $orderBy are provided
+            if (!empty($sortBy) && !empty($orderBy)) {
+                $body['sort'] = [
+                    [
+                        "{$sortBy}.keyword" => [
+                            // order should be 'asc' or 'desc'
+                            'order' => strtolower($orderBy),
+                        ]
+                    ]
+                ];
+            }
+
             // Sending a request to Elasticsearch
             $response = $this->elasticsearch->search([
                 'index' => $this->model::getSearchIndex(),
                 'type' => '_doc',
-                'body' => [
-                    'from' => $from,
-                    'size' => $itemsPerPage,
-                    'query' => [
-                        'bool' => $boolQuery,
-                    ],
-                ],
+                'body' => $body,
             ]);
-
             $data = $response->asArray();
 
             // Generate results with pagination
