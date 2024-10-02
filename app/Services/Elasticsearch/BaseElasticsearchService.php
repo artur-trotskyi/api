@@ -93,4 +93,18 @@ class BaseElasticsearchService
     {
         return $this->repo->bulkIndexDocuments($bulkData);
     }
+
+    /**
+     * Search for items in Elasticsearch based on the given query.
+     *
+     * @param string|null $query The search query.
+     * @param int $itemsPerPage
+     * @param int $page
+     * @param array $strictFilters
+     * @return array A collection of search results.
+     */
+    public function search(string|null $query, int $itemsPerPage, int $page, array $strictFilters): array
+    {
+        return $this->repo->search($query, $itemsPerPage, $page, $strictFilters);
+    }
 }

@@ -12,10 +12,7 @@ class PostService extends BaseService
      *
      * @param PostRepository $repo The repository for managing posts.
      */
-    public function __construct
-    (
-        PostRepository $repo
-    )
+    public function __construct(PostRepository $repo)
     {
         $this->repo = $repo;
     }

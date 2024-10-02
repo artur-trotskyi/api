@@ -16,76 +16,46 @@ use Symfony\Component\HttpFoundation\Response;
 
 abstract class BaseElasticsearchRepository
 {
+    protected Model $model;
     protected Client $elasticsearch;
 
     /**
      * Repository Constructor.
      *
-     * @param Client $elasticsearch The Elasticsearch client instance.
+     * @param Model $model Repo DB ORM Model
      */
-    public function __construct
-    (
-        Client $elasticsearch
-    )
+    public function __construct(Model $model)
     {
-        $this->elasticsearch = $elasticsearch;
+        $this->model = $model;
+        $this->elasticsearch = app(Client::class);
     }
 
     /**
      * Search for items in Elasticsearch based on the given query.
      *
-     * @param Model $model The Eloquent model to perform the search on.
-     * @param string $query The search query.
-     * @return Collection A collection of search results.
-     * @throws ClientResponseException
-     * @throws ServerResponseException
+     * @param string|null $query The search query.
+     * @param int $itemsPerPage
+     * @param int $page
+     * @param array $strictFilters
+     * @param array $fields
+     * @return array A collection of search results.
      */
-    public function search(Model $model, string $query = ''): Collection
+    public function search(string|null $query, int $itemsPerPage, int $page, array $strictFilters, array $fields = []): array
     {
-        $items = $this->searchOnElasticsearch($model, $query);
-
-        return $this->buildCollection($model, $items);
-    }
-
-    /**
-     * Perform the search on Elasticsearch.
-     *
-     * @param Model $model The Eloquent model to perform the search on.
-     * @param string $query The search query.
-     * @return array The raw search results from Elasticsearch.
-     * @throws ClientResponseException
-     * @throws ServerResponseException
-     */
-    protected function searchOnElasticsearch(Model $model, string $query = ''): array
-    {
-        $response = $this->elasticsearch->search([
-            'index' => $model::getSearchIndex(),
-            'type' => '_doc',
-            'body' => [
-                'query' => [
-                    'multi_match' => [
-                        'fields' => ['title^5', 'content', 'tags'],
-                        'query' => $query,
-                    ],
-                ],
-            ],
-        ]);
-
-        return $response->asArray();
+        return $this->searchOnElasticsearch($query, $itemsPerPage, $page, $strictFilters, $fields);
     }
 
     /**
      * Build a collection from the raw search results.
      *
-     * @param Model $model The Eloquent model to find results for.
      * @param array $items The raw search results from Elasticsearch.
      * @return Collection A collection of Eloquent models.
      */
-    protected function buildCollection(Model $model, array $items): Collection
+    protected function buildCollection(array $items): Collection
     {
         $ids = Arr::pluck($items['hits']['hits'], '_id');
 
-        return $model::findMany($ids)->sortBy(function ($item) use ($ids) {
+        return $this->model::findMany($ids)->sortBy(function ($item) use ($ids) {
             return array_search($item->getKey(), $ids);
         });
     }
@@ -214,6 +184,92 @@ abstract class BaseElasticsearchRepository
         } catch (Exception $e) {
             Log::error("Unexpected error when deleting document with ID {$id} from index {$index}: " . $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Perform the search on Elasticsearch for any model.
+     *
+     * @param string|null $query The search query.
+     * @param int $itemsPerPage
+     * @param int $page
+     * @param array $strictFilters
+     * @param array $fields Fields to search within.
+     * @return array The raw search results from Elasticsearch.
+     */
+    protected function searchOnElasticsearch(string|null $query, int $itemsPerPage, int $page, array $strictFilters, array $fields): array
+    {
+        try {
+            $from = ($page - 1) * $itemsPerPage;
+
+            // Forming an array for the query
+            $boolQuery = [];
+
+            // If there are strict filters, add them to `must`
+            if (!empty($strictFilters)) {
+                foreach ($strictFilters as $field => $value) {
+                    if (!empty($value)) {
+                        $boolQuery['must'][] = [
+                            'match_phrase' => [
+                                // Use .keyword for an exact match
+                                "{$field}.keyword" => $value,
+                            ],
+                        ];
+                    }
+                }
+            }
+
+            // If there are query and fields, add multi_match
+            if (!empty($query) && !empty($fields)) {
+                $boolQuery['must'][] = [
+                    'multi_match' => [
+                        'query' => $query,
+                        'fields' => $fields,
+                    ],
+                ];
+            }
+
+            // If there are no filters or query, use match_all
+            if (empty($boolQuery)) {
+                $boolQuery['must'][] = [
+                    'match_all' => (object)[],
+                ];
+            }
+
+            // Sending a request to Elasticsearch
+            $response = $this->elasticsearch->search([
+                'index' => $this->model::getSearchIndex(),
+                'type' => '_doc',
+                'body' => [
+                    'from' => $from,
+                    'size' => $itemsPerPage,
+                    'query' => [
+                        'bool' => $boolQuery,
+                    ],
+                ],
+            ]);
+
+            $data = $response->asArray();
+
+            // Generate results with pagination
+            $totalItems = $data['hits']['total']['value'] ?? 0;
+            $items = array_map(function ($hit) {
+                return $hit['_source'];
+            }, $data['hits']['hits']);
+
+            return [
+                'items' => $items,
+                'totalPages' => $totalItems > 0 ? (int)ceil($totalItems / $itemsPerPage) : 0,
+                'totalItems' => $totalItems,
+                'page' => $page
+            ];
+
+        } catch (NoNodeAvailableException|ClientResponseException|ServerResponseException $e) {
+            Log::error('Elasticsearch search error: ' . $e->getMessage(), ['exception' => $e]);
+            return [];
+        } catch (Exception $e) {
+            Log::error('General search error: ' . $e->getMessage(), ['exception' => $e]);
+            return [];
         }
     }
 

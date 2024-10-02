@@ -3,25 +3,18 @@
 namespace App\Repositories\Elasticsearch;
 
 use App\Models\Post;
-use Elastic\Elasticsearch\Exception\ClientResponseException;
-use Elastic\Elasticsearch\Exception\ServerResponseException;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 
 class PostElasticsearchRepository extends BaseElasticsearchRepository
 {
     /**
-     * Search for Post items in Elasticsearch based on the given query.
+     * Repo Constructor
+     * Override to clarify typehinted model.
      *
-     * @param Model $model The Eloquent model to perform the search on.
-     * @param string $query The search query.
-     * @return Collection A collection of search results.
-     * @throws ClientResponseException
-     * @throws ServerResponseException
+     * @param Post $model Repo DB ORM Model
      */
-    public function search(Model $model, string $query = ''): Collection
+    public function __construct(Post $model)
     {
-        return parent::search(new Post(), $query);
+        parent::__construct($model);
     }
 
     /**
@@ -39,5 +32,20 @@ class PostElasticsearchRepository extends BaseElasticsearchRepository
                 'tags' => ['type' => 'keyword'],
             ],
         ];
+    }
+
+    /**
+     * Perform the search on Elasticsearch for Post model.
+     *
+     * @param string|null $query The search query.
+     * @param int $itemsPerPage
+     * @param int $page
+     * @param array $strictFilters
+     * @param array $fields Fields to search within.
+     * @return array The raw search results from Elasticsearch.
+     */
+    protected function searchOnElasticsearch(string|null $query, int $itemsPerPage, int $page, array $strictFilters, array $fields): array
+    {
+        return parent::searchOnElasticsearch($query, $itemsPerPage, $page, $strictFilters, ['title^5', 'content', 'tags']);
     }
 }

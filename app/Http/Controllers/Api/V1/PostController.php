@@ -12,6 +12,7 @@ use App\Http\Requests\Post\PostUpdateRequest;
 use App\Http\Resources\Post\PostCollection;
 use App\Http\Resources\Post\PostResource;
 use App\Models\Post;
+use App\Services\Elasticsearch\PostElasticsearchService;
 use App\Services\PostService;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -28,6 +29,7 @@ class PostController extends Controller implements HasMiddleware
     }
 
     private PostService $postService;
+    private PostElasticsearchService $postElasticsearchService;
 
     /**
      * Create a new controller instance.
@@ -36,10 +38,12 @@ class PostController extends Controller implements HasMiddleware
      */
     public function __construct
     (
-        PostService $postService
+        PostService              $postService,
+        PostElasticsearchService $postElasticsearchService
     )
     {
         $this->postService = $postService;
+        $this->postElasticsearchService = $postElasticsearchService;
     }
 
     /**
@@ -58,6 +62,7 @@ class PostController extends Controller implements HasMiddleware
         $sortBy = $request->validated('sortBy');
         $orderBy = $request->validated('orderBy');
 
+        $posts = $this->postElasticsearchService->search($q, $itemsPerPage, $page, ['title' => $title, 'content' => $content]);
         $posts = $this->postService->filter($q, $itemsPerPage, $page, $title, $content, $sortBy, $orderBy);
 
         return new PostCollection($posts, AppConstants::RESOURCE_MESSAGES['data_retrieved_successfully']);
