@@ -23,15 +23,13 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
      * @param string|null $q
      * @param int $itemsPerPage
      * @param int $page
-     * @param string|null $title
-     * @param string|null $content
+     * @param array $strictFilters
      * @param string|null $sortBy
      * @param string|null $orderBy
      * @return LengthAwarePaginator
      */
     public function getFilteredWithPaginate(
-        string $q = null, int $itemsPerPage = -1, int $page = 1, string $title = null, string $content = null,
-        string $sortBy = null, string $orderBy = null): LengthAwarePaginator
+        string|null $q, int $itemsPerPage, int $page, array $strictFilters, string $sortBy = null, string $orderBy = null): LengthAwarePaginator
     {
         $query = $this->model
             ->when($q, function ($query, $search) {
@@ -40,11 +38,11 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
                         ->orWhere('content', 'like', '%' . $search . '%');
                 });
             })
-            ->when($title, function ($query, $search) {
-                $query->where('title', $search);
+            ->when(!empty($strictFilters['title']), function ($query) use ($strictFilters) {
+                $query->where('title', $strictFilters['title']);
             })
-            ->when($content, function ($query, $search) {
-                $query->where('content', $search);
+            ->when(!empty($strictFilters['content']), function ($query) use ($strictFilters) {
+                $query->where('content', $strictFilters['content']);
             });
 
         if ($sortBy && $orderBy) {

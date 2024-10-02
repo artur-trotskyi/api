@@ -23,19 +23,19 @@ class PostService extends BaseService
      * @param string|null $q
      * @param int $itemsPerPage
      * @param int $page
-     * @param string|null $title
-     * @param string|null $content
+     * @param array $strictFilters
      * @param string|null $sortBy
      * @param string|null $orderBy
      * @return array
      */
     public function filter(
-        string|null $q, int $itemsPerPage, int $page, string|null $title, string|null $content, string|null $sortBy, string|null $orderBy): array
+        string|null $q, int $itemsPerPage, int $page, array $strictFilters, string|null $sortBy, string|null $orderBy): array
     {
         $cacheTag = config('cache.tags.users');
-        $cacheKey = "q={$q}&itemsPerPage={$itemsPerPage}&page={$page}&title={$title}&content={$content}&sortBy={$sortBy}&orderBy={$orderBy}";
-        $posts = Cache::tags($cacheTag)->remember($cacheKey, config('cache.ttl'), function () use ($q, $itemsPerPage, $page, $title, $content, $sortBy, $orderBy) {
-            return $this->repo->getFilteredWithPaginate($q, $itemsPerPage, $page, $title, $content, $sortBy, $orderBy);
+        $filtersQueryString = http_build_query($strictFilters);
+        $cacheKey = "q={$q}&itemsPerPage={$itemsPerPage}&page={$page}&{$filtersQueryString}&sortBy={$sortBy}&orderBy={$orderBy}";
+        $posts = Cache::tags($cacheTag)->remember($cacheKey, config('cache.ttl'), function () use ($q, $itemsPerPage, $page, $strictFilters, $sortBy, $orderBy) {
+            return $this->repo->getFilteredWithPaginate($q, $itemsPerPage, $page, $strictFilters, $sortBy, $orderBy);
         });
 
         return [
