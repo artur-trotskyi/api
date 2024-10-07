@@ -52,16 +52,17 @@ class PostController extends Controller implements HasMiddleware
      */
     public function index(PostFilterRequest $request): PostCollection
     {
-        $q = $request->validated('q');
-        $itemsPerPage = $request->validated('itemsPerPage');
-        $page = $request->validated('page');
-        $title = $request->validated('title');
-        $content = $request->validated('content');
-        $sortBy = $request->validated('sortBy');
-        $orderBy = $request->validated('orderBy');
+        $postFilterDto = $request->getDto();
+        $q = $postFilterDto->q;
+        $itemsPerPage = $postFilterDto->itemsPerPage;
+        $page = $postFilterDto->page;
+        $title = $postFilterDto->title;
+        $content = $postFilterDto->content;
+        $sortBy = $postFilterDto->sortBy;
+        $orderBy = $postFilterDto->orderBy;
 
-        //  $posts = $this->postElasticsearchService->search($q, $itemsPerPage, $page, ['title' => $title, 'content' => $content], $sortBy, $orderBy);
-        $posts = $this->postService->filter($q, $itemsPerPage, $page, ['title' => $title, 'content' => $content], $sortBy, $orderBy);
+        $posts = $this->postElasticsearchService->search($q, $itemsPerPage, $page, ['title' => $title, 'content' => $content], $sortBy, $orderBy);
+        //   $posts = $this->postService->filter($q, $itemsPerPage, $page, ['title' => $title, 'content' => $content], $sortBy, $orderBy);
 
         return new PostCollection($posts, AppConstants::RESOURCE_MESSAGES['data_retrieved_successfully']);
     }
@@ -74,12 +75,12 @@ class PostController extends Controller implements HasMiddleware
      */
     public function store(PostStoreRequest $request): PostResource
     {
-        $postRequestData = $request->validated();
+        $postStoreDto = $request->getDto();
         $newPost = $this->postService->create([
-            'user_id' => auth()->id(),
-            'title' => $postRequestData['title'],
-            'content' => $postRequestData['content'],
-            'tags' => $postRequestData['tags'],
+            'user_id' => $postStoreDto->user_id,
+            'title' => $postStoreDto->title,
+            'content' => $postStoreDto->content,
+            'tags' => $postStoreDto->tags,
         ]);
 
         return new PostResource($newPost, AppConstants::RESOURCE_MESSAGES['data_created_successfully'], Response::HTTP_CREATED);
@@ -108,12 +109,12 @@ class PostController extends Controller implements HasMiddleware
     public function update(PostUpdateRequest $request, Post $post): PostResource
     {
         Gate::authorize('modify', $post);
-        $postRequestData = $request->validated();
+        $postUpdateDto = $request->validated();
         $this->postService->update($post->getAttribute('id'), [
-            'user_id' => auth()->id(),
-            'title' => $postRequestData['title'],
-            'content' => $postRequestData['content'],
-            'tags' => $postRequestData['tags'],
+            'user_id' => $postUpdateDto->user_id,
+            'title' => $postUpdateDto->title,
+            'content' => $postUpdateDto->content,
+            'tags' => $postUpdateDto->tags,
         ]);
 
         return new PostResource([], AppConstants::RESOURCE_MESSAGES['data_updated_successfully']);

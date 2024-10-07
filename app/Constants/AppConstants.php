@@ -37,6 +37,9 @@ interface AppConstants
     ];
 
     public const int ALL = -1;
+    public const array ITEMS_PER_PAGE = [
+        'min' => 1, 'max' => 20
+    ];
     public const array TAGS = ['php', 'ruby', 'java', 'javascript', 'bash'];
     public const array SORTABLE_FIELDS = ['title', 'content'];
     public const array SORT_ORDER_OPTIONS = ['asc', 'desc'];

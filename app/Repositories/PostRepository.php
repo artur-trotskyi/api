@@ -50,9 +50,9 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
         }
         $query->orderBy($this->sortBy, $this->sortOrder);
 
-        if ($itemsPerPage === -1) {
+        /*if ($itemsPerPage === -1) {
             $itemsPerPage = $query->count();
-        }
+        }*/
 
         return $query->paginate($itemsPerPage, ['*'], 'page', $page);
     }
