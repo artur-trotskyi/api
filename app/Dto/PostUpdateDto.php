@@ -4,10 +4,10 @@ namespace App\Dto;
 
 class PostUpdateDto
 {
-    public string $user_id;
+    public int $user_id;
     public string $title;
     public string $content;
-    public string $tags;
+    public array $tags;
 
     /**
      * PostFilterDto constructor.

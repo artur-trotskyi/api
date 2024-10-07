@@ -36,10 +36,11 @@ class PostUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['required', 'string', 'exists:users,id'],
+            'user_id' => ['required', 'integer', 'exists:users,id'],
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string', 'max:65535'],
-            'tags' => ['required', 'string', Rule::in(AppConstants::TAGS)],
+            'tags' => ['required', 'array'],
+            'tags.*' => ['string', Rule::in(AppConstants::TAGS)],
         ];
     }
 

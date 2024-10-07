@@ -94,8 +94,8 @@ class Post extends Model
             'title' => $this->title,
             'content' => $this->content,
             'tags' => $this->tags,
-            'created_at' => $this->created_at->toDateTimeString(),
-            'updated_at' => $this->updated_at->toDateTimeString(),
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 
@@ -115,10 +115,5 @@ class Post extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function toSearchArray(): array
-    {
-        return $this->toArray();
     }
 }

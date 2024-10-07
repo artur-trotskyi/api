@@ -109,7 +109,7 @@ class PostController extends Controller implements HasMiddleware
     public function update(PostUpdateRequest $request, Post $post): PostResource
     {
         Gate::authorize('modify', $post);
-        $postUpdateDto = $request->validated();
+        $postUpdateDto = $request->getDto();
         $this->postService->update($post->getAttribute('id'), [
             'user_id' => $postUpdateDto->user_id,
             'title' => $postUpdateDto->title,
