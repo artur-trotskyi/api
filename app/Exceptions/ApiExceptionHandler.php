@@ -2,7 +2,7 @@
 
 namespace App\Exceptions;
 
-use App\Constants\AppConstants;
+use App\Enums\ExceptionMessagesEnum;
 use App\Http\Resources\ErrorResource;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -40,39 +40,39 @@ class ApiExceptionHandler
     {
         switch (true) {
             case $exception instanceof InvalidArgumentException:
-                $this->message = AppConstants::EXCEPTION_MESSAGES['validation_error'];
+                $this->message = ExceptionMessagesEnum::ValidationError->message();
                 $this->code = Response::HTTP_UNPROCESSABLE_ENTITY;
                 $this->errors[] = $exception->getMessage();
                 break;
             case $exception instanceof QueryException:
-                $this->message = AppConstants::EXCEPTION_MESSAGES['internal_server_error'];
+                $this->message = ExceptionMessagesEnum::InternalServerError->message();
                 $this->code = Response::HTTP_INTERNAL_SERVER_ERROR;
-                $this->errors[] = AppConstants::EXCEPTION_MESSAGES['failed_to_retrieve_data'];
+                $this->errors[] = ExceptionMessagesEnum::FailedToRetrieveData->message();
                 break;
             case $exception instanceof AccessDeniedHttpException || $exception instanceof AuthorizationException:
-                $this->message = AppConstants::EXCEPTION_MESSAGES['unauthorized_action'];
+                $this->message = ExceptionMessagesEnum::UnauthorizedAction->message();
                 $this->code = Response::HTTP_FORBIDDEN;
                 $this->errors[] = $exception->getMessage();
                 break;
             case $exception instanceof AuthenticationException:
                 $this->message = $exception->getMessage();
                 $this->code = Response::HTTP_UNAUTHORIZED;
-                $this->errors[] = AppConstants::EXCEPTION_MESSAGES['authentication_required'];
+                $this->errors[] = ExceptionMessagesEnum::AuthenticationRequired->message();
                 break;
             case $exception instanceof ValidationException:
-                $this->message = AppConstants::EXCEPTION_MESSAGES['the_given_data_was_invalid'];
+                $this->message = ExceptionMessagesEnum::TheGivenDataWasInvalid->message();
                 $this->code = Response::HTTP_UNPROCESSABLE_ENTITY;
                 $this->errors[] = $exception->getMessage();
                 break;
             case $exception instanceof NotFoundHttpException:
-                $this->message = AppConstants::EXCEPTION_MESSAGES['not_found'];
+                $this->message = ExceptionMessagesEnum::NotFound->message();
                 $this->code = Response::HTTP_NOT_FOUND;
-                $this->errors[] = AppConstants::EXCEPTION_MESSAGES['resource_not_found'];
+                $this->errors[] = ExceptionMessagesEnum::ResourceNotFound->message();
                 break;
             default:
-                $this->message = AppConstants::EXCEPTION_MESSAGES['internal_server_error'];
+                $this->message = ExceptionMessagesEnum::InternalServerError->message();
                 $this->code = Response::HTTP_INTERNAL_SERVER_ERROR;
-                $this->errors[] = AppConstants::EXCEPTION_MESSAGES['an_unknown_error_occurred'];
+                $this->errors[] = ExceptionMessagesEnum::AnUnknownErrorOccurred->message();
                 break;
         }
     }

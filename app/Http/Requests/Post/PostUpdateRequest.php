@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Post;
 
-use App\Constants\AppConstants;
 use App\Dto\PostUpdateDto;
+use App\Enums\PostEnum;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -40,7 +40,7 @@ class PostUpdateRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string', 'max:65535'],
             'tags' => ['required', 'array'],
-            'tags.*' => ['string', Rule::in(AppConstants::TAGS)],
+            'tags.*' => ['string', Rule::in(PostEnum::tags())],
         ];
     }
 

@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-use App\Constants\AppConstants;
+use App\Enums\ExceptionMessagesEnum;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 
-trait HasCustomUuids
+trait HasCustomUuidsTrait
 {
     use HasUuids;
 
@@ -27,10 +27,10 @@ trait HasCustomUuids
     public function resolveRouteBindingQuery($query, $value, $field = null): Builder
     {
         if ($field && in_array($field, $this->uniqueIds()) && !Str::isUuid($value)) {
-            throw new ModelNotFoundException(AppConstants::EXCEPTION_MESSAGES['invalid_uuid_with_field']);
+            throw new ModelNotFoundException(ExceptionMessagesEnum::InvalidUuidWithField->message());
         }
         if (!$field && in_array($this->getRouteKeyName(), $this->uniqueIds()) && !Str::isUuid($value)) {
-            throw new ModelNotFoundException(AppConstants::EXCEPTION_MESSAGES['invalid_uuid_for_route_key']);
+            throw new ModelNotFoundException(ExceptionMessagesEnum::InvalidUuidForRouteKey->message());
         }
 
         return parent::resolveRouteBindingQuery($query, $value, $field);

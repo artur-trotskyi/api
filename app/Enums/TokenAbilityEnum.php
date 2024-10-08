@@ -2,8 +2,12 @@
 
 namespace App\Enums;
 
-enum TokenAbility: string
+use App\Traits\EnumTrait;
+
+enum TokenAbilityEnum: string
 {
+    use EnumTrait;
+
     case ISSUE_ACCESS_TOKEN = 'issue-access-token';
     case ACCESS_API = 'access-api';
 }

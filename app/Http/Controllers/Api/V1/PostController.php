@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Constants\AppConstants;
+use App\Enums\ResourceMessagesEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Post\PostFilterRequest;
 use App\Http\Requests\Post\PostStoreRequest;
@@ -64,7 +64,7 @@ class PostController extends Controller implements HasMiddleware
         $posts = $this->postElasticsearchService->search($q, $itemsPerPage, $page, ['title' => $title, 'content' => $content], $sortBy, $orderBy);
         //   $posts = $this->postService->filter($q, $itemsPerPage, $page, ['title' => $title, 'content' => $content], $sortBy, $orderBy);
 
-        return new PostCollection($posts, AppConstants::RESOURCE_MESSAGES['data_retrieved_successfully']);
+        return new PostCollection($posts, ResourceMessagesEnum::DataRetrievedSuccessfully->message());
     }
 
     /**
@@ -83,7 +83,7 @@ class PostController extends Controller implements HasMiddleware
             'tags' => $postStoreDto->tags,
         ]);
 
-        return new PostResource($newPost, AppConstants::RESOURCE_MESSAGES['data_created_successfully'], Response::HTTP_CREATED);
+        return new PostResource($newPost, ResourceMessagesEnum::DataCreatedSuccessfully->message(), Response::HTTP_CREATED);
     }
 
     /**
@@ -96,7 +96,7 @@ class PostController extends Controller implements HasMiddleware
     {
         $post = $this->postService->getById($id);
 
-        return new PostResource($post, AppConstants::RESOURCE_MESSAGES['data_retrieved_successfully']);
+        return new PostResource($post, ResourceMessagesEnum::DataRetrievedSuccessfully->message());
     }
 
     /**
@@ -117,7 +117,7 @@ class PostController extends Controller implements HasMiddleware
             'tags' => $postUpdateDto->tags,
         ]);
 
-        return new PostResource([], AppConstants::RESOURCE_MESSAGES['data_updated_successfully']);
+        return new PostResource([], ResourceMessagesEnum::DataUpdatedSuccessfully->message());
     }
 
     /**
@@ -131,6 +131,6 @@ class PostController extends Controller implements HasMiddleware
         Gate::authorize('modify', $post);
         $this->postService->destroy($post->getAttribute('id'));
 
-        return new PostResource([], AppConstants::RESOURCE_MESSAGES['data_deleted_successfully']);
+        return new PostResource([], ResourceMessagesEnum::DataDeletedSuccessfully->message());
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Enums\TokenAbility;
+use App\Enums\TokenAbilityEnum;
 use App\Http\Resources\ErrorResource;
 use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\ClientBuilder;
@@ -70,7 +70,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Sanctum::$accessTokenAuthenticationCallback = function ($accessToken, $isValid) {
             $abilities = collect($accessToken->abilities);
-            if (!empty($abilities) && $abilities[0] === TokenAbility::ISSUE_ACCESS_TOKEN->value) {
+            if (!empty($abilities) && $abilities[0] === TokenAbilityEnum::ISSUE_ACCESS_TOKEN->message()) {
                 return $accessToken->expires_at && $accessToken->expires_at->isFuture();
             }
 

@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Constants\AppConstants;
+use App\Enums\ExceptionMessagesEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Collection;
@@ -50,12 +50,12 @@ class BaseService
     public function getById(string $id): ?Model
     {
         if (!Str::isUuid($id)) {
-            throw new NotFoundHttpException(AppConstants::EXCEPTION_MESSAGES['invalid_uuid_with_field']);
+            throw new NotFoundHttpException(ExceptionMessagesEnum::InvalidUuidWithField->message());
         }
 
         $model = $this->repo->getById($id);
         if (!$model) {
-            throw new NotFoundHttpException(AppConstants::EXCEPTION_MESSAGES['data_not_found']);
+            throw new NotFoundHttpException(ExceptionMessagesEnum::DataNotFound->message());
         }
 
         return $model;

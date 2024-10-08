@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources;
 
-use App\Constants\AppConstants;
+use App\Enums\ResourceMessagesEnum;
 use Symfony\Component\HttpFoundation\Response;
 
 class ErrorResource extends BaseResource
@@ -14,7 +14,7 @@ class ErrorResource extends BaseResource
     public function __construct
     (
         $resource,
-        string $message = AppConstants::RESOURCE_MESSAGES['default_failed'],
+        string $message = ResourceMessagesEnum::DefaultFailed->value,
         int $statusCode = Response::HTTP_BAD_REQUEST,
         bool $success = false
     )

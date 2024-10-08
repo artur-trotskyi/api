@@ -5,7 +5,8 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Constants\AppConstants;
+use App\Enums\ExceptionMessagesEnum;
+use App\Enums\ResourceMessagesEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\AuthLoginRequest;
 use App\Http\Requests\Auth\AuthRegisterRequest;
@@ -53,7 +54,7 @@ class AuthController extends Controller
             'token_type' => 'Bearer'
         ];
 
-        return (new AuthResource($userData, AppConstants::RESOURCE_MESSAGES['register_successful']))
+        return (new AuthResource($userData, ResourceMessagesEnum::RegisterSuccessful->message()))
             ->response()
             ->withCookie($cookie);
     }
@@ -69,7 +70,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $loginRequestData['email'])->first();
         if (!$user || !Hash::check($loginRequestData['password'], $user->password)) {
-            throw new AuthenticationException(AppConstants::EXCEPTION_MESSAGES['the_provided_credentials_are_incorrect']);
+            throw new AuthenticationException(ExceptionMessagesEnum::TheProvidedCredentialsAreIncorrect->message());
         }
 
         $tokens = $this->authService->generateTokens($user);
@@ -81,7 +82,7 @@ class AuthController extends Controller
             'token_type' => 'Bearer'
         ];
 
-        return (new AuthResource($userData, AppConstants::RESOURCE_MESSAGES['login_successful']))
+        return (new AuthResource($userData, ResourceMessagesEnum::LoginSuccessful->message()))
             ->response()
             ->withCookie($cookie);
     }
@@ -94,7 +95,7 @@ class AuthController extends Controller
     {
         $request->user()->tokens()->delete();
 
-        return new AuthResource([], AppConstants::RESOURCE_MESSAGES['you_are_logged_out']);
+        return new AuthResource([], ResourceMessagesEnum::YouAreLoggedOut->message());
     }
 
     /**
@@ -116,7 +117,7 @@ class AuthController extends Controller
             'token_type' => 'Bearer'
         ];
 
-        return (new AuthResource($userData, AppConstants::RESOURCE_MESSAGES['login_successful']))
+        return (new AuthResource($userData, ResourceMessagesEnum::LoginSuccessful->message()))
             ->response()
             ->withCookie($cookie);
     }

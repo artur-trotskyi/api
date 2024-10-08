@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Constants\AppConstants;
+use App\Enums\ExceptionMessagesEnum;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -13,7 +13,7 @@ class PostPolicy
     public function modify(User $user, Post $post): Response
     {
         if ($user->getAttribute('id') !== $post->getAttribute('user_id')) {
-            throw new AccessDeniedHttpException(AppConstants::EXCEPTION_MESSAGES['authorization_for_data']);
+            throw new AccessDeniedHttpException(ExceptionMessagesEnum::AuthorizationForData->message());
         }
 
         return Response::allow();

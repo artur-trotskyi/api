@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources;
 
-use App\Constants\AppConstants;
+use App\Enums\ResourceMessagesEnum;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -19,7 +19,7 @@ class BaseCollection extends JsonResource
     public function __construct
     (
         mixed  $resource,
-        string $message = AppConstants::RESOURCE_MESSAGES['default_successfully'],
+        string $message = ResourceMessagesEnum::DefaultSuccessfully->value,
         int    $statusCode = Response::HTTP_OK,
         bool   $success = true
     )

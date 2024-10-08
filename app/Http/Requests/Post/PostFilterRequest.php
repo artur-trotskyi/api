@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Post;
 
-use App\Constants\AppConstants;
 use App\Dto\PostFilterDto;
+use App\Enums\PostEnum;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -27,13 +27,13 @@ class PostFilterRequest extends FormRequest
     {
         return [
             'q' => ['sometimes', 'nullable', 'string'],
-            'itemsPerPage' => ['required', 'integer', 'between:' . AppConstants::ITEMS_PER_PAGE['min'] . ',' . AppConstants::ITEMS_PER_PAGE['max']],
+            'itemsPerPage' => ['required', 'integer', 'between:' . PostEnum::itemsPerPage()['min'] . ',' . PostEnum::itemsPerPage()['max']],
             'page' => ['required', 'integer', 'min:1'],
             'title' => ['sometimes', 'nullable', 'string'],
             'content' => ['sometimes', 'nullable', 'string'],
-            'tags' => ['sometimes', 'nullable', 'string', Rule::in(AppConstants::TAGS)],
-            'sortBy' => ['sometimes', 'nullable', 'string', Rule::in(AppConstants::SORTABLE_FIELDS)],
-            'orderBy' => ['sometimes', 'nullable', 'string', Rule::in(AppConstants::SORT_ORDER_OPTIONS)],
+            'tags' => ['sometimes', 'nullable', 'string', Rule::in(PostEnum::tags())],
+            'sortBy' => ['sometimes', 'nullable', 'string', Rule::in(PostEnum::sortableFields())],
+            'orderBy' => ['sometimes', 'nullable', 'string', Rule::in(PostEnum::sortOrderOptions())],
         ];
     }
 

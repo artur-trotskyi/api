@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Constants\AppConstants;
+use App\Enums\PostEnum;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -25,7 +25,7 @@ class PostFactory extends Factory
             'user_id' => User::inRandomOrder()->first()->id ?? User::factory(),
             'title' => $this->faker->sentence,
             'content' => $this->faker->paragraph,
-            'tags' => collect(AppConstants::TAGS)
+            'tags' => collect(PostEnum::tags())
                 ->random(2)->values()->all(),
         ];
     }

@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Observers\PostObserver;
-use App\Traits\HasCustomUuids;
+use App\Traits\HasCustomUuidsTrait;
 use App\Traits\Searchable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Post extends Model
 {
     use HasFactory, SoftDeletes;
-    use HasCustomUuids, Searchable;
+    use HasCustomUuidsTrait, Searchable;
 
     public bool $timestamp = true;
 
