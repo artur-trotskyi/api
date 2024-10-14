@@ -50,7 +50,7 @@ services:
   elasticsearch:
     image: elasticsearch:7.17.22
     ports:
-      - "9200:9200"
+      - "127.0.0.1:${HOST_MACHINE_ELASTICSEARCH_PORT}:9200"
     restart: always
     environment:
       discovery.type: 'single-node'
@@ -62,14 +62,17 @@ services:
       - ./config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
       - ./config/elasticsearch/plugins:/usr/share/elasticsearch/plugins
   rabbitmq:
-    image: rabbitmq:4.0.2
+    build: ./bin/rabbitmq
     container_name: "${COMPOSE_PROJECT_NAME}-rabbitmq"
     restart: always
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      # AMQP protocol port
+      - "127.0.0.1:${HOST_MACHINE_RABBITMQ_PORT}:5672"
+      # HTTP management UI
+      - "127.0.0.1:${HOST_MACHINE_RABBITMQ_MANAGEMENT_PORT}:15672"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     volumes:
-      - ./data/rabbitmq:/var/lib/rabbitmq
+      - ./data/rabbitmq:/var/lib/rabbitmq:rw
+      - ./logs/rabbitmq:/var/log/rabbitmq
