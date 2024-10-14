@@ -12,6 +12,7 @@ services:
       - ./logs/nginx:/var/log/nginx
     links:
       - php-fpm
+      - mysql
       - postgres
       - elasticsearch
       - rabbitmq
@@ -22,12 +23,29 @@ services:
       - ./config/php/php.ini:/usr/local/etc/php/php.ini
       - ./logs/xdebug:/var/log/xdebug
     links:
+      - mysql
       - postgres
       - elasticsearch
       - rabbitmq
     depends_on:
       - elasticsearch
       - rabbitmq
+  mysql:
+    image: mysql:8.0.39
+    container_name: "${COMPOSE_PROJECT_NAME}-mysql"
+    restart: "always"
+    ports:
+      - "127.0.0.1:${HOST_MACHINE_MYSQL_PORT}:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ./config/initdb:/docker-entrypoint-initdb.d
+      - ./data/mysql:/var/lib/mysql
+      - ./logs/mysql:/var/log/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
   postgres:
     image: postgres:16.4
     container_name: "${COMPOSE_PROJECT_NAME}-postgres"
@@ -73,6 +91,6 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
-    volumes:
-      - ./data/rabbitmq:/var/lib/rabbitmq:rw
-      - ./logs/rabbitmq:/var/log/rabbitmq
+    #volumes:
+    #  - ./data/rabbitmq:/var/lib/rabbitmq:rw
+    #  - ./logs/rabbitmq:/var/log/rabbitmq
