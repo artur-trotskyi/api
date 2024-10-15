@@ -10,23 +10,12 @@ services:
       - ${DOCUMENT_ROOT-../../}:/var/www/html:rw
       - ./config/vhosts:/etc/nginx/conf.d
       - ./logs/nginx:/var/log/nginx
-    links:
-      - php-fpm
-      - mysql
-      - postgres
-      - elasticsearch
-      - rabbitmq
   php-fpm:
     build: ./bin/${PHPVERSION}
     volumes:
       - ${DOCUMENT_ROOT-./www}:/var/www/html:rw
       - ./config/php/php.ini:/usr/local/etc/php/php.ini
       - ./logs/xdebug:/var/log/xdebug
-    links:
-      - mysql
-      - postgres
-      - elasticsearch
-      - rabbitmq
     depends_on:
       - elasticsearch
       - rabbitmq
