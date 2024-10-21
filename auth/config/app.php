@@ -1,5 +1,7 @@
 <?php
 
+$env = env('APP_ENV', 'production');
+
 return [
 
     /*
@@ -26,7 +28,9 @@ return [
     |
     */
 
-    'env' => env('APP_ENV', 'production'),
+    'env' => $env,
+    'is_local' => $env === 'local',
+    'is_production' => $env === 'production',
 
     /*
     |--------------------------------------------------------------------------
@@ -39,7 +43,7 @@ return [
     |
     */
 
-    'debug' => (bool) env('APP_DEBUG', false),
+    'debug' => (bool)env('APP_DEBUG', false),
 
     /*
     |--------------------------------------------------------------------------

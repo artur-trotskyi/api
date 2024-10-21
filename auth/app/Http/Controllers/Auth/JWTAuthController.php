@@ -1,8 +1,13 @@
 <?php
 // https://medium.com/@a3rxander/how-to-implement-jwt-authentication-in-laravel-11-26e6d7be5a41
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
 
+use App\Enums\ResourceMessagesEnum;
+use App\Http\Requests\Auth\AuthLoginRequest;
+use App\Http\Requests\Auth\AuthRegisterRequest;
+use App\Http\Resources\Auth\AuthResource;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -11,7 +16,7 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenBlacklistedException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-class JWTAuthController extends Controller implements HasMiddleware
+class JWTAuthController extends AuthBaseController implements HasMiddleware
 {
     /**
      * Get the middleware that should be assigned to the controller.
@@ -19,17 +24,39 @@ class JWTAuthController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('auth:api', except: ['login', 'refresh']),
+            new Middleware('auth:api', except: ['login', 'refresh', 'register']),
         ];
+    }
+
+    /**
+     * @param AuthRegisterRequest $request
+     * @return JsonResponse
+     */
+    public function register(AuthRegisterRequest $request): JsonResponse
+    {
+        $registerRequestData = $request->validated();
+        $user = User::create($registerRequestData);
+
+        $token = JWTAuth::fromUser($user);
+
+        $userData = [
+            'user' => $user,
+            'access_token' => $token,
+            'token_type' => 'Bearer'
+        ];
+
+        return (new AuthResource($userData, ResourceMessagesEnum::RegisterSuccessful->message()))
+            ->response()
+            ->setStatusCode(201);
     }
 
     /**
      * Get a JWT via given credentials.
      *
-     * @param Request $request
+     * @param AuthLoginRequest $request
      * @return JsonResponse
      */
-    public function login(Request $request): JsonResponse
+    public function login(AuthLoginRequest $request): JsonResponse
     {
         $credentials = $request->only('email', 'password');
 
@@ -59,7 +86,7 @@ class JWTAuthController extends Controller implements HasMiddleware
     {
         try {
             if (!$user = JWTAuth::parseToken()->authenticate()) {
-                return response()->json(['error' => 'User not found.'], 404);
+                return response()->json(['error' => 'User not authenticated.'], 401);
             }
         } catch (JWTException $e) {
             return response()->json(['error' => 'Invalid token.'], 400);
@@ -71,9 +98,10 @@ class JWTAuthController extends Controller implements HasMiddleware
     /**
      * Log the user out (Invalidate the token).
      *
+     * @param Request $request
      * @return JsonResponse
      */
-    public function logout(): JsonResponse
+    public function logout(Request $request): JsonResponse
     {
         JWTAuth::invalidate(JWTAuth::getToken());
 
@@ -83,9 +111,10 @@ class JWTAuthController extends Controller implements HasMiddleware
     /**
      * Refresh a token.
      *
+     * @param Request $request
      * @return JsonResponse
      */
-    public function refresh(): JsonResponse
+    public function refresh(Request $request): JsonResponse
     {
         try {
             $token = JWTAuth::refresh(JWTAuth::getToken());
