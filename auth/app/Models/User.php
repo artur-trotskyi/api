@@ -37,6 +37,8 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password',
         'remember_token',
+        'email_verified_at',
+        'deleted_at',
     ];
 
     /**
@@ -47,6 +49,9 @@ class User extends Authenticatable implements JWTSubject
     protected function casts(): array
     {
         return [
+            'created_at' => 'datetime:Y-m-d H:i:s',
+            'updated_at' => 'datetime:Y-m-d H:i:s',
+            'deleted_at' => 'datetime:Y-m-d H:i:s',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];

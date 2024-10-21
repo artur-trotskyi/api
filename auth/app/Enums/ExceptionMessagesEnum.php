@@ -22,8 +22,9 @@ enum ExceptionMessagesEnum: string
     case TheProvidedCredentialsAreIncorrect = 'The provided credentials are incorrect.';
     case ResourceNotFound = 'The requested resource could not be found.';
     case ValidationError = 'Validation error.';
-
     case UnsupportedAuthDriver = 'Unsupported auth driver';
+    case UnableToRevokeTokens = 'Unable to revoke tokens.';
+
 
     /**
      * @param string $driver

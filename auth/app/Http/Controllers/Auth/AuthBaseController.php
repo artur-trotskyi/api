@@ -16,7 +16,7 @@ abstract class AuthBaseController extends Controller
 
     abstract public function me();
 
-    abstract public function logout(Request $request);
+    abstract public function logout();
 
     abstract public function refresh(Request $request);
 }

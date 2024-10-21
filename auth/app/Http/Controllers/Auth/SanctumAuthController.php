@@ -12,6 +12,7 @@ use App\Http\Requests\Auth\AuthRegisterRequest;
 use App\Http\Resources\Auth\AuthResource;
 use App\Models\User;
 use App\Services\AuthService;
+use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -56,12 +57,14 @@ class SanctumAuthController extends AuthBaseController
         $user = User::create($registerRequestData);
 
         $tokens = $this->authService->generateTokens($user);
-        $cookie = $this->authService->generateRefreshTokenCookie($tokens['refreshToken']);
+        $cookie = $this->authService
+            ->generateRefreshTokenCookie($tokens['refresh']['refreshToken'], $tokens['refresh']['refreshTokenExpireTime']);
 
         $userData = [
             'user' => $user,
-            'access_token' => $tokens['accessToken'],
-            'token_type' => 'Bearer'
+            'access_token' => $tokens['access']['accessToken'],
+            'token_type' => 'Bearer',
+            'expires_in' => $tokens['access']['accessTokenExpireTime'],
         ];
 
         return (new AuthResource($userData, ResourceMessagesEnum::RegisterSuccessful->message()))
@@ -85,12 +88,13 @@ class SanctumAuthController extends AuthBaseController
         }
 
         $tokens = $this->authService->generateTokens($user);
-        $cookie = $this->authService->generateRefreshTokenCookie($tokens['refreshToken']);
+        $cookie = $this->authService->generateRefreshTokenCookie($tokens['refresh']['refreshToken'], $tokens['refresh']['refreshTokenExpireTime']);
 
         $userData = [
             'user' => $user,
-            'access_token' => $tokens['accessToken'],
-            'token_type' => 'Bearer'
+            'access_token' => $tokens['access']['accessToken'],
+            'token_type' => 'Bearer',
+            'expires_in' => $tokens['access']['accessTokenExpireTime'],
         ];
 
         return (new AuthResource($userData, ResourceMessagesEnum::LoginSuccessful->message()))
@@ -102,27 +106,45 @@ class SanctumAuthController extends AuthBaseController
      * Get the authenticated User.
      *
      * @return JsonResponse
+     * @throws AuthenticationException
      */
     public function me(): JsonResponse
     {
-        $user = auth('sanctum')->user();
+        $user = Auth::guard('sanctum')->user();
         if (!$user) {
-            return response()->json(['error' => ExceptionMessagesEnum::AuthenticationRequired->message()], 401);
+            throw new AuthenticationException(ExceptionMessagesEnum::AuthenticationRequired->message());
         }
 
-        return (new AuthResource($user, ResourceMessagesEnum::DataRetrievedSuccessfully->message()))
+        $userData = [
+            'user' => $user,
+        ];
+
+        return (new AuthResource($userData, ResourceMessagesEnum::DataRetrievedSuccessfully->message()))
             ->response();
     }
 
     /**
-     * @param Request $request
-     * @return AuthResource
+     *  Log the user out (Invalidate the token).
+     *
+     * @return JsonResponse
+     * @throws AuthenticationException
+     * @throws Exception
      */
-    public function logout(Request $request): AuthResource
+    public function logout(): JsonResponse
     {
-        auth('sanctum')->user()->tokens()->delete();
+        $user = Auth::guard('sanctum')->user();
+        if (!$user) {
+            throw new AuthenticationException(ExceptionMessagesEnum::AuthenticationRequired->message());
+        }
 
-        return new AuthResource([], ResourceMessagesEnum::YouAreLoggedOut->message());
+        try {
+            $user->tokens()->delete();
+        } catch (Exception $e) {
+            throw new Exception(ExceptionMessagesEnum::UnableToRevokeTokens->message());
+        }
+
+        return (new AuthResource([], ResourceMessagesEnum::YouAreLoggedOut->message()))
+            ->response();
     }
 
     /**
@@ -130,21 +152,32 @@ class SanctumAuthController extends AuthBaseController
      *
      * Accept `{refreshToken: string}` from cookies.
      * @response array{data: array{accessToken: string}, status: bool}
+     * @throws Exception
      */
     public function refresh(Request $request): JsonResponse
     {
-        $user = Auth::user();
-        $request->user()->tokens()->delete();
+        $user = Auth::guard('sanctum')->user();
+        if (!$user) {
+            throw new AuthenticationException(ExceptionMessagesEnum::AuthenticationRequired->message());
+        }
+
+        try {
+            $user->tokens()->delete();
+        } catch (Exception $e) {
+            throw new Exception(ExceptionMessagesEnum::UnableToRevokeTokens->message());
+        }
 
         $tokens = $this->authService->generateTokens($user);
-        $cookie = $this->authService->generateRefreshTokenCookie($tokens['refreshToken']);
+        $cookie = $this->authService
+            ->generateRefreshTokenCookie($tokens['refresh']['refreshToken'], $tokens['refresh']['refreshTokenExpireTime']);
 
-        $userData = [
-            'access_token' => $tokens['accessToken'],
-            'token_type' => 'Bearer'
+        $tokenData = [
+            'access_token' => $tokens['access']['accessToken'],
+            'token_type' => 'Bearer',
+            'expires_in' => $tokens['access']['accessTokenExpireTime'],
         ];
 
-        return (new AuthResource($userData, ResourceMessagesEnum::LoginSuccessful->message()))
+        return (new AuthResource($tokenData, ResourceMessagesEnum::LoginSuccessful->message()))
             ->response()
             ->withCookie($cookie);
     }

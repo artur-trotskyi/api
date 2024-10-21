@@ -55,15 +55,23 @@ class AuthService extends BaseService
      */
     public function generateTokens(User|Authenticatable $user): array
     {
-        $atExpireTime = now()->addMinutes(config('sanctum.expiration'));
-        $rtExpireTime = now()->addMinutes(config('sanctum.rt_expiration'));
+        $expiration = config('sanctum.expiration') * 60;
+        $atExpireTime = now()->addSeconds($expiration);
+        $rtExpiration = config('sanctum.rt_expiration') * 60;
+        $rtExpireTime = now()->addSeconds($rtExpiration);
 
         $accessToken = $user->createToken('access_token', [TokenAbilityEnum::ACCESS_API], $atExpireTime);
         $refreshToken = $user->createToken('refresh_token', [TokenAbilityEnum::ISSUE_ACCESS_TOKEN], $rtExpireTime);
 
         return [
-            'accessToken' => $accessToken->plainTextToken,
-            'refreshToken' => $refreshToken->plainTextToken,
+            'access' => [
+                'accessToken' => $accessToken->plainTextToken,
+                'accessTokenExpireTime' => $expiration,
+            ],
+            'refresh' => [
+                'refreshToken' => $refreshToken->plainTextToken,
+                'refreshTokenExpireTime' => $rtExpiration,
+            ],
         ];
     }
 
@@ -71,12 +79,11 @@ class AuthService extends BaseService
      * Generates a secure refresh token cookie.
      *
      * @param string $refreshToken
+     * @param int $rtExpireTime
      * @return Application|CookieJar|Cookie
      */
-    public function generateRefreshTokenCookie(string $refreshToken): Application|CookieJar|Cookie
+    public function generateRefreshTokenCookie(string $refreshToken, int $rtExpireTime): Application|CookieJar|Cookie
     {
-        $rtExpireTime = config('sanctum.rt_expiration');
-
         return cookie('refreshToken', $refreshToken, $rtExpireTime, secure: config('app.is_production'));
     }
 }

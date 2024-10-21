@@ -16,5 +16,5 @@ enum ResourceMessagesEnum: string
     case DataDeletedSuccessfully = 'Data deleted successfully.';
     case RegisterSuccessful = 'Register successful.';
     case LoginSuccessful = 'Login successful.';
-    case YouAreLoggedOut = 'You are logged out.';
+    case YouAreLoggedOut = 'You are successfully logged out.';
 }

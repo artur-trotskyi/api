@@ -98,10 +98,9 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
     /**
      * Log the user out (Invalidate the token).
      *
-     * @param Request $request
      * @return JsonResponse
      */
-    public function logout(Request $request): JsonResponse
+    public function logout(): JsonResponse
     {
         JWTAuth::invalidate(JWTAuth::getToken());
 
