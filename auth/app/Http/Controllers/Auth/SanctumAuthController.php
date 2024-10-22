@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Enums\ExceptionMessagesEnum;
 use App\Enums\ResourceMessagesEnum;
+use App\Enums\TokenAbilityEnum;
 use App\Http\Requests\Auth\AuthLoginRequest;
 use App\Http\Requests\Auth\AuthRegisterRequest;
 use App\Http\Resources\Auth\AuthResource;
@@ -15,7 +16,6 @@ use App\Services\AuthService;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -31,6 +31,8 @@ class SanctumAuthController extends AuthBaseController
     {
         return [
             new Middleware('auth:sanctum', only: ['logout', 'refresh', 'me']),
+            new Middleware('ability:' . TokenAbilityEnum::ISSUE_ACCESS_TOKEN->message(), only: ['refresh']),
+            new Middleware('ability:' . TokenAbilityEnum::ACCESS_API->message(), only: ['me']),
         ];
     }
 
@@ -150,11 +152,11 @@ class SanctumAuthController extends AuthBaseController
     /**
      * Refresh access token.
      *
-     * Accept `{refreshToken: string}` from cookies.
-     * @response array{data: array{accessToken: string}, status: bool}
+     * @return JsonResponse
+     * @throws AuthenticationException
      * @throws Exception
      */
-    public function refresh(Request $request): JsonResponse
+    public function refresh(): JsonResponse
     {
         $user = Auth::guard('sanctum')->user();
         if (!$user) {

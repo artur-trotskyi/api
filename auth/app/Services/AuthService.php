@@ -22,26 +22,21 @@ class AuthService extends BaseService
     }
 
     /**
-     * Retrieves the authentication controller class based on the selected driver.
+     * Resolves and returns an instance of the appropriate authentication controller.
      *
-     * @return string The class name of the authentication controller.
-     * @throws InvalidArgumentException If the specified driver is not supported.
+     * @return string
+     * @throws InvalidArgumentException If the auth driver is not supported.
      */
-    public function getAuthController(): string
+    public function resolveAuthController(): string
     {
-        $authDriver = env('AUTH_DRIVER', 'jwt');
-
+        $authDriver = config('auth.auth_driver');
         if (!AuthDriverEnum::isValid($authDriver)) {
             throw new InvalidArgumentException(ExceptionMessagesEnum::unsupportedDriverMessage($authDriver));
         }
 
-        $controllers = [
-            AuthDriverEnum::JWT->message() => JWTAuthController::class,
-            AuthDriverEnum::SANCTUM->message() => SanctumAuthController::class,
-            // AuthDriverEnum::OAUTH->message() => OAuthAuthController::class,
-        ];
+        $driverEnum = AuthDriverEnum::from($authDriver);
 
-        return $controllers[$authDriver];
+        return $driverEnum->controllerClass();
     }
 
     /**

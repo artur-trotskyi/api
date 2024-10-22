@@ -9,7 +9,6 @@ use App\Http\Requests\Auth\AuthRegisterRequest;
 use App\Http\Resources\Auth\AuthResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -108,12 +107,11 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
     }
 
     /**
-     * Refresh a token.
+     * Refresh access token.
      *
-     * @param Request $request
      * @return JsonResponse
      */
-    public function refresh(Request $request): JsonResponse
+    public function refresh(): JsonResponse
     {
         try {
             $token = JWTAuth::refresh(JWTAuth::getToken());

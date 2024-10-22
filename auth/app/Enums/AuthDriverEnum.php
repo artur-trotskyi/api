@@ -2,6 +2,8 @@
 
 namespace App\Enums;
 
+use App\Http\Controllers\Auth\JWTAuthController;
+use App\Http\Controllers\Auth\SanctumAuthController;
 use App\Traits\EnumTrait;
 
 enum AuthDriverEnum: string
@@ -12,6 +14,20 @@ enum AuthDriverEnum: string
     case SANCTUM = 'sanctum';
 
     // case OAUTH = 'oauth';
+
+    /**
+     * Get the corresponding authentication controller class for the enum case.
+     *
+     * @return string|null
+     */
+    public function controllerClass(): ?string
+    {
+        return match ($this) {
+            self::JWT => JWTAuthController::class,
+            self::SANCTUM => SanctumAuthController::class,
+            // self::OAUTH => \App\Http\Controllers\Auth\OAuthAuthController::class,
+        };
+    }
 
     /**
      * @param string $value

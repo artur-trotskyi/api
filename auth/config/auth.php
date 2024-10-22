@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\AuthDriverEnum;
+
 return [
 
     /*
@@ -111,4 +113,6 @@ return [
     */
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
+
+    'auth_driver' => env('AUTH_DRIVER', AuthDriverEnum::JWT->message()),
 ];

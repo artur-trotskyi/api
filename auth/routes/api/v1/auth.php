@@ -3,8 +3,10 @@
 use App\Services\AuthService;
 use Illuminate\Support\Facades\Route;
 
+// Resolve the appropriate authentication controller instance
+/** @var AuthService $authService */
 $authService = app(AuthService::class);
-$authController = $authService->getAuthController();
+$authController = $authService->resolveAuthController();
 
 Route::prefix('auth')->as('auth.')->group(function () use ($authController) {
     Route::post('register', [$authController, 'register'])->name('register');
