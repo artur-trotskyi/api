@@ -76,7 +76,8 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
     {
         $credentials = $request->only('email', 'password');
         try {
-            if (!$token = JWTAuth::attempt($credentials)) {
+            $token = JWTAuth::attempt($credentials);
+            if (!$token) {
                 throw new AuthenticationException(ExceptionMessagesEnum::TheProvidedCredentialsAreIncorrect->message());
             }
 
@@ -103,18 +104,25 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
      * Get the authenticated user.
      *
      * @return JsonResponse
+     * @throws AuthenticationException
      */
     public function me(): JsonResponse
     {
         try {
-            if (!$user = JWTAuth::parseToken()->authenticate()) {
-                return response()->json(['error' => 'User not authenticated.'], 401);
+            $user = JWTAuth::parseToken()->authenticate();
+            if (!$user) {
+                throw new AuthenticationException(ExceptionMessagesEnum::AuthenticationRequired->message());
             }
         } catch (JWTException $e) {
-            return response()->json(['error' => 'Invalid token.'], 400);
+            throw new AuthenticationException(ExceptionMessagesEnum::InvalidToken->message());
         }
 
-        return response()->json($user);
+        $userData = [
+            'user' => $user,
+        ];
+
+        return (new AuthResource($userData, ResourceMessagesEnum::DataRetrievedSuccessfully->message()))
+            ->response();
     }
 
     /**
@@ -126,43 +134,33 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
     {
         JWTAuth::invalidate(JWTAuth::getToken());
 
-        return response()->json(['message' => 'Successfully logged out.']);
+        return (new AuthResource([], ResourceMessagesEnum::YouAreLoggedOut->message()))
+            ->response();
     }
 
     /**
      * Refresh access token.
      *
      * @return JsonResponse
+     * @throws Exception
      */
     public function refresh(): JsonResponse
     {
         try {
             $token = JWTAuth::refresh(JWTAuth::getToken());
+            $tokenData = [
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'expires_in' => JWTAuth::factory()->getTTL() * 60,
+            ];
 
-            return $this->respondWithToken($token);
+            return (new AuthResource($tokenData, ResourceMessagesEnum::LoginSuccessful->message()))
+                ->response();
+
         } catch (TokenBlacklistedException $e) {
-            return response()->json([
-                'error' => 'The token has been blacklisted. Please log in again.'
-            ], status: 401);
+            throw new AuthenticationException(ExceptionMessagesEnum::TokenHasBeenBlacklisted->message());
         } catch (JWTException $e) {
-            return response()->json([
-                'error' => 'Could not refresh token.'
-            ], status: 500);
+            throw new Exception(ExceptionMessagesEnum::CouldNotRefreshToken->message());
         }
-    }
-
-    /**
-     * Get the token array structure.
-     *
-     * @param string $token
-     * @return JsonResponse
-     */
-    protected function respondWithToken(string $token): JsonResponse
-    {
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => JWTAuth::factory()->getTTL() * 60,
-        ]);
     }
 }

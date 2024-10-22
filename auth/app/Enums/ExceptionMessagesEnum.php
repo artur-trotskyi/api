@@ -25,6 +25,9 @@ enum ExceptionMessagesEnum: string
     case UnsupportedAuthDriver = 'Unsupported auth driver';
     case UnableToRevokeTokens = 'Unable to revoke tokens.';
     case CouldNotCreateToken = 'Could not create token.';
+    case InvalidToken = 'Invalid token.';
+    case TokenHasBeenBlacklisted = 'The token has been blacklisted. Please log in again.';
+    case CouldNotRefreshToken = 'Could not refresh token.';
 
     /**
      * @param string $driver
