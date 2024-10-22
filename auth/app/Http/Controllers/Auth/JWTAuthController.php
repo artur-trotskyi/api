@@ -3,11 +3,14 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\ExceptionMessagesEnum;
 use App\Enums\ResourceMessagesEnum;
 use App\Http\Requests\Auth\AuthLoginRequest;
 use App\Http\Requests\Auth\AuthRegisterRequest;
 use App\Http\Resources\Auth\AuthResource;
 use App\Models\User;
+use Exception;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -28,6 +31,18 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
     }
 
     /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
+     * Register a new user.
+     *
      * @param AuthRegisterRequest $request
      * @return JsonResponse
      */
@@ -35,13 +50,13 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
     {
         $registerRequestData = $request->validated();
         $user = User::create($registerRequestData);
-
         $token = JWTAuth::fromUser($user);
 
         $userData = [
             'user' => $user,
             'access_token' => $token,
-            'token_type' => 'Bearer'
+            'token_type' => 'Bearer',
+            'expires_in' => JWTAuth::factory()->getTTL() * 60,
         ];
 
         return (new AuthResource($userData, ResourceMessagesEnum::RegisterSuccessful->message()))
@@ -50,34 +65,42 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
     }
 
     /**
-     * Get a JWT via given credentials.
+     * Log a user and get a token via given credentials.
      *
      * @param AuthLoginRequest $request
      * @return JsonResponse
+     * @throws AuthenticationException
+     * @throws Exception
      */
     public function login(AuthLoginRequest $request): JsonResponse
     {
         $credentials = $request->only('email', 'password');
-
         try {
             if (!$token = JWTAuth::attempt($credentials)) {
-                return response()->json(['error' => 'Invalid credentials.'], 401);
+                throw new AuthenticationException(ExceptionMessagesEnum::TheProvidedCredentialsAreIncorrect->message());
             }
 
             // Get the authenticated user.
-            // $user = auth()->user();
-
+            $user = JWTAuth::user();
             // (optional) Attach the role to the token.
             // $token = JWTAuth::claims(['role' => $user->role])->fromUser($user);
 
-            return $this->respondWithToken($token);
+            $userData = [
+                'user' => $user,
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'expires_in' => JWTAuth::factory()->getTTL() * 60,
+            ];
+
+            return (new AuthResource($userData, ResourceMessagesEnum::LoginSuccessful->message()))
+                ->response();
         } catch (JWTException $e) {
-            return response()->json(['error' => 'Could not create token.'], 500);
+            throw new Exception(ExceptionMessagesEnum::CouldNotCreateToken->message());
         }
     }
 
     /**
-     * Get the authenticated User.
+     * Get the authenticated user.
      *
      * @return JsonResponse
      */
@@ -132,7 +155,6 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
      * Get the token array structure.
      *
      * @param string $token
-     *
      * @return JsonResponse
      */
     protected function respondWithToken(string $token): JsonResponse
@@ -140,7 +162,7 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'expires_in' => JWTAuth::factory()->getTTL() * 60,
         ]);
     }
 }

@@ -50,6 +50,8 @@ class SanctumAuthController extends AuthBaseController
     }
 
     /**
+     * Register a new user.
+     *
      * @param AuthRegisterRequest $request
      * @return JsonResponse
      */
@@ -76,6 +78,8 @@ class SanctumAuthController extends AuthBaseController
     }
 
     /**
+     * Log a user and get a token via given credentials.
+     *
      * @param AuthLoginRequest $request
      * @return JsonResponse
      * @throws AuthenticationException
@@ -105,7 +109,7 @@ class SanctumAuthController extends AuthBaseController
     }
 
     /**
-     * Get the authenticated User.
+     * Get the authenticated user.
      *
      * @return JsonResponse
      * @throws AuthenticationException
@@ -126,7 +130,7 @@ class SanctumAuthController extends AuthBaseController
     }
 
     /**
-     *  Log the user out (Invalidate the token).
+     * Log the user out (Invalidate the token).
      *
      * @return JsonResponse
      * @throws AuthenticationException
@@ -140,7 +144,10 @@ class SanctumAuthController extends AuthBaseController
         }
 
         try {
+            // Revoke all tokens
             $user->tokens()->delete();
+            // Revoke the current token
+            // $user->currentAccessToken()->delete();
         } catch (Exception $e) {
             throw new Exception(ExceptionMessagesEnum::UnableToRevokeTokens->message());
         }
@@ -164,7 +171,10 @@ class SanctumAuthController extends AuthBaseController
         }
 
         try {
+            // Revoke all tokens
             $user->tokens()->delete();
+            // Revoke the current token
+            // $user->currentAccessToken()->delete();
         } catch (Exception $e) {
             throw new Exception(ExceptionMessagesEnum::UnableToRevokeTokens->message());
         }
