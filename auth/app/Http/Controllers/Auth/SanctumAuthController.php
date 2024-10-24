@@ -21,6 +21,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class SanctumAuthController extends AuthBaseController
 {
@@ -143,22 +144,25 @@ class SanctumAuthController extends AuthBaseController
      */
     public function logout(): JsonResponse
     {
-        $user = Auth::guard('sanctum')->user();
-        if (!$user) {
-            throw new AuthenticationException(ExceptionMessagesEnum::AuthenticationRequired->message());
+        $refreshToken = request()->cookie('refreshToken') ?? null;
+        if (!$refreshToken) {
+            return response()->json([], 204);
         }
 
-        try {
-            // Revoke all tokens
-            $user->tokens()->delete();
-            // Revoke the current token
-            // $user->currentAccessToken()->delete();
-        } catch (Exception $e) {
-            throw new Exception(ExceptionMessagesEnum::UnableToRevokeTokens->message());
+        $personalAccessToken = PersonalAccessToken::findToken($refreshToken);
+        if ($personalAccessToken) {
+            try {
+                $personalAccessToken->tokenable->tokens()->delete();
+            } catch (Exception $e) {
+                throw new Exception(ExceptionMessagesEnum::UnableToRevokeTokens->message());
+            }
         }
+
+        $cookie = cookie()->forget('refreshToken');
 
         return (new AuthResource([], ResourceMessagesEnum::YouAreLoggedOut->message()))
-            ->response();
+            ->response()
+            ->withCookie($cookie);
     }
 
     /**
