@@ -1,6 +1,7 @@
 <?php
 
 // https://medium.com/@dychkosergey/access-and-refresh-tokens-using-laravel-sanctum-037392e50509
+// https://github.com/dychkos/laravel-access-refresh-tokens
 // https://medium.com/@marcboko.uriel/manage-refresh-token-and-acces-token-with-laravel-sanctum-85defbce46ed
 
 namespace App\Http\Controllers\Auth;
@@ -13,6 +14,7 @@ use App\Http\Requests\Auth\AuthRegisterRequest;
 use App\Http\Resources\Auth\AuthResource;
 use App\Models\User;
 use App\Services\AuthService;
+use Illuminate\Validation\ValidationException;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
@@ -83,6 +85,7 @@ class SanctumAuthController extends AuthBaseController
      * @param AuthLoginRequest $request
      * @return JsonResponse
      * @throws AuthenticationException
+     * @throws ValidationException
      */
     public function login(AuthLoginRequest $request): JsonResponse
     {
@@ -90,7 +93,9 @@ class SanctumAuthController extends AuthBaseController
 
         $user = User::where('email', $loginRequestData['email'])->first();
         if (!$user || !Hash::check($loginRequestData['password'], $user->password)) {
-            throw new AuthenticationException(ExceptionMessagesEnum::TheProvidedCredentialsAreIncorrect->message());
+            throw ValidationException::withMessages([
+                'email' => [ExceptionMessagesEnum::TheProvidedCredentialsAreIncorrect->message()],
+            ]);
         }
 
         $tokens = $this->authService->generateTokens($user);
