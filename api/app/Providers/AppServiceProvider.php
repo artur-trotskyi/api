@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Enums\TokenAbilityEnum;
 use App\Http\Resources\ErrorResource;
 use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\ClientBuilder;
@@ -11,7 +10,6 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
-use Laravel\Sanctum\Sanctum;
 use Symfony\Component\HttpFoundation\Response;
 
 class AppServiceProvider extends ServiceProvider
@@ -35,7 +33,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureRateLimiting();
-        $this->overrideSanctumConfigurationToSupportRefreshToken();
     }
 
     /**
@@ -59,30 +56,5 @@ class AppServiceProvider extends ServiceProvider
                 throw new HttpResponseException($resource->toResponse($request));
             });
         });
-    }
-
-    /**
-     * Override Sanctum's default configuration to support handling both access tokens and refresh tokens.
-     *
-     * @return void
-     */
-    private function overrideSanctumConfigurationToSupportRefreshToken(): void
-    {
-        Sanctum::$accessTokenAuthenticationCallback = function ($accessToken, $isValid) {
-            $abilities = collect($accessToken->abilities);
-            if (!empty($abilities) && $abilities[0] === TokenAbilityEnum::ISSUE_ACCESS_TOKEN->message()) {
-                return $accessToken->expires_at && $accessToken->expires_at->isFuture();
-            }
-
-            return $isValid;
-        };
-
-        Sanctum::$accessTokenRetrievalCallback = function ($request) {
-            if (!$request->routeIs('auth.refresh')) {
-                return str_replace('Bearer ', '', $request->headers->get('Authorization'));
-            }
-
-            return $request->cookie('refreshToken') ?? '';
-        };
     }
 }

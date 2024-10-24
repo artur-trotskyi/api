@@ -12,20 +12,11 @@ use App\Http\Resources\Post\PostResource;
 use App\Models\Post;
 use App\Services\Elasticsearch\PostElasticsearchService;
 use App\Services\PostService;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
-class PostController extends Controller implements HasMiddleware
+class PostController extends Controller
 {
-    public static function middleware(): array
-    {
-        return [
-            new Middleware('auth:sanctum', except: ['index', 'show']),
-        ];
-    }
-
     private PostService $postService;
     private PostElasticsearchService $postElasticsearchService;
 
