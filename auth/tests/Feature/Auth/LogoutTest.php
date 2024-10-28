@@ -42,13 +42,13 @@ class LogoutTest extends TestCase
     {
         $response = $this->postJson(route('auth.logout'));
 
-        $response->assertStatus(204);
+        $response->assertStatus(200);
 
         $response->assertCookie('refreshToken');
 
         $response->assertJson([
-            'status' => true,
-            'message' => 'Successfully logged out.',
+            'success' => true,
+            'message' => 'Already logged out.',
             'data' => []
         ]);
     }

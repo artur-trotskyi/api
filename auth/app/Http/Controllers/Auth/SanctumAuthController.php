@@ -146,7 +146,10 @@ class SanctumAuthController extends AuthBaseController
     {
         $refreshToken = request()->cookie('refreshToken') ?? null;
         if (!$refreshToken) {
-            return response()->json([], 204);
+            $cookie = cookie()->forget('refreshToken');
+            return (new AuthResource([], ResourceMessagesEnum::AlreadyLoggedOut->message()))
+                ->response()
+                ->withCookie($cookie);
         }
 
         $personalAccessToken = PersonalAccessToken::findToken($refreshToken);
