@@ -55,7 +55,7 @@ services:
     ports:
       - "127.0.0.1:${HOST_MACHINE_REDIS_PORT}:6379"
   elasticsearch:
-    image: elasticsearch:7.17.22
+    image: elasticsearch:8.15.3
     ports:
       - "127.0.0.1:${HOST_MACHINE_ELASTICSEARCH_PORT}:9200"
     restart: always

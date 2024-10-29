@@ -25,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
                 ->setBasicAuthentication(config('elasticsearch.user'), config('elasticsearch.pass'))
                 ->build();
         });
+
+        if ($this->app->environment('local')) {
+            $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
+            $this->app->register(TelescopeServiceProvider::class);
+        }
     }
 
     /**
