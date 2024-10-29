@@ -6,6 +6,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\DTO\UserTokenDTO;
 use App\Enums\ExceptionMessagesEnum;
 use App\Enums\ResourceMessagesEnum;
 use App\Enums\TokenAbilityEnum;
@@ -17,11 +18,11 @@ use App\Services\AuthService;
 use Illuminate\Validation\ValidationException;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\PersonalAccessToken;
+use Symfony\Component\HttpFoundation\Response;
 
 class SanctumAuthController extends AuthBaseController
 {
@@ -56,9 +57,9 @@ class SanctumAuthController extends AuthBaseController
      * Register a new user.
      *
      * @param AuthRegisterRequest $request
-     * @return JsonResponse
+     * @return AuthResource
      */
-    public function register(AuthRegisterRequest $request): JsonResponse
+    public function register(AuthRegisterRequest $request): AuthResource
     {
         $registerRequestData = $request->validated();
         $user = User::create($registerRequestData);
@@ -67,28 +68,26 @@ class SanctumAuthController extends AuthBaseController
         $cookie = $this->authService
             ->generateRefreshTokenCookie($tokens['refresh']['refreshToken'], $tokens['refresh']['refreshTokenExpireTime']);
 
-        $userData = [
-            'user' => $user,
-            'access_token' => $tokens['access']['accessToken'],
-            'token_type' => 'Bearer',
-            'expires_in' => $tokens['access']['accessTokenExpireTime'],
-        ];
+        $userTokenDTO = (new UserTokenDTO(
+            accessToken: $tokens['access']['accessToken'],
+            expiresIn: $tokens['access']['accessTokenExpireTime'],
+            user: $user,
+        ))->toArray();
 
-        return (new AuthResource($userData, ResourceMessagesEnum::RegisterSuccessful->message()))
-            ->response()
-            ->withCookie($cookie)
-            ->setStatusCode(201);
+        return AuthResource::make($userTokenDTO, ResourceMessagesEnum::RegisterSuccessful->message())
+            ->setCookie($cookie)
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**
      * Log a user and get a token via given credentials.
      *
      * @param AuthLoginRequest $request
-     * @return JsonResponse
+     * @return AuthResource
      * @throws AuthenticationException
      * @throws ValidationException
      */
-    public function login(AuthLoginRequest $request): JsonResponse
+    public function login(AuthLoginRequest $request): AuthResource
     {
         $loginRequestData = $request->validated();
 
@@ -102,25 +101,23 @@ class SanctumAuthController extends AuthBaseController
         $tokens = $this->authService->generateTokens($user);
         $cookie = $this->authService->generateRefreshTokenCookie($tokens['refresh']['refreshToken'], $tokens['refresh']['refreshTokenExpireTime']);
 
-        $userData = [
-            'user' => $user,
-            'access_token' => $tokens['access']['accessToken'],
-            'token_type' => 'Bearer',
-            'expires_in' => $tokens['access']['accessTokenExpireTime'],
-        ];
+        $userTokenDTO = (new UserTokenDTO(
+            accessToken: $tokens['access']['accessToken'],
+            expiresIn: $tokens['access']['accessTokenExpireTime'],
+            user: $user,
+        ))->toArray();
 
-        return (new AuthResource($userData, ResourceMessagesEnum::LoginSuccessful->message()))
-            ->response()
-            ->withCookie($cookie);
+        return AuthResource::make($userTokenDTO, ResourceMessagesEnum::LoginSuccessful->message())
+            ->setCookie($cookie);
     }
 
     /**
      * Get the authenticated user.
      *
-     * @return JsonResponse
+     * @return AuthResource
      * @throws AuthenticationException
      */
-    public function me(): JsonResponse
+    public function me(): AuthResource
     {
         $user = Auth::guard('sanctum')->user();
         if (!$user) {
@@ -131,25 +128,23 @@ class SanctumAuthController extends AuthBaseController
             'user' => $user,
         ];
 
-        return (new AuthResource($userData, ResourceMessagesEnum::DataRetrievedSuccessfully->message()))
-            ->response();
+        return AuthResource::make($userData, ResourceMessagesEnum::DataRetrievedSuccessfully->message());
     }
 
     /**
      * Log the user out (Invalidate the token).
      *
-     * @return JsonResponse
+     * @return AuthResource
      * @throws AuthenticationException
      * @throws Exception
      */
-    public function logout(): JsonResponse
+    public function logout(): AuthResource
     {
         $refreshToken = request()->cookie('refreshToken') ?? null;
         if (!$refreshToken) {
             $cookie = cookie()->forget('refreshToken');
-            return (new AuthResource([], ResourceMessagesEnum::AlreadyLoggedOut->message()))
-                ->response()
-                ->withCookie($cookie);
+            return AuthResource::make([], ResourceMessagesEnum::AlreadyLoggedOut->message())
+                ->setCookie($cookie);
         }
 
         $personalAccessToken = PersonalAccessToken::findToken($refreshToken);
@@ -163,19 +158,18 @@ class SanctumAuthController extends AuthBaseController
 
         $cookie = cookie()->forget('refreshToken');
 
-        return (new AuthResource([], ResourceMessagesEnum::YouAreLoggedOut->message()))
-            ->response()
-            ->withCookie($cookie);
+        return AuthResource::make([], ResourceMessagesEnum::YouAreLoggedOut->message())
+            ->setCookie($cookie);
     }
 
     /**
      * Refresh access token.
      *
-     * @return JsonResponse
+     * @return AuthResource
      * @throws AuthenticationException
      * @throws Exception
      */
-    public function refresh(): JsonResponse
+    public function refresh(): AuthResource
     {
         $user = Auth::guard('sanctum')->user();
         if (!$user) {
@@ -195,14 +189,12 @@ class SanctumAuthController extends AuthBaseController
         $cookie = $this->authService
             ->generateRefreshTokenCookie($tokens['refresh']['refreshToken'], $tokens['refresh']['refreshTokenExpireTime']);
 
-        $tokenData = [
-            'access_token' => $tokens['access']['accessToken'],
-            'token_type' => 'Bearer',
-            'expires_in' => $tokens['access']['accessTokenExpireTime'],
-        ];
+        $userTokenDTO = (new UserTokenDTO(
+            accessToken: $tokens['access']['accessToken'],
+            expiresIn: $tokens['access']['accessTokenExpireTime'],
+        ))->toArray();
 
-        return (new AuthResource($tokenData, ResourceMessagesEnum::LoginSuccessful->message()))
-            ->response()
-            ->withCookie($cookie);
+        return AuthResource::make($userTokenDTO, ResourceMessagesEnum::LoginSuccessful->message())
+            ->setCookie($cookie);
     }
 }

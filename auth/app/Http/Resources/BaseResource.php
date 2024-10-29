@@ -6,6 +6,7 @@ use App\Enums\ResourceMessagesEnum;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 
 class BaseResource extends JsonResource
@@ -13,6 +14,7 @@ class BaseResource extends JsonResource
     protected string $message;
     protected int $statusCode;
     protected bool $success;
+    protected ?Cookie $cookie = null;
 
     public function __construct
     (
@@ -29,6 +31,30 @@ class BaseResource extends JsonResource
     }
 
     /**
+     * Sets the status code for the response.
+     *
+     * @param int $statusCode
+     * @return $this
+     */
+    public function setStatusCode(int $statusCode): self
+    {
+        $this->statusCode = $statusCode;
+        return $this;
+    }
+
+    /**
+     * Sets a cookie for the response.
+     *
+     * @param Cookie $cookie
+     * @return $this
+     */
+    public function setCookie(Cookie $cookie): self
+    {
+        $this->cookie = $cookie;
+        return $this;
+    }
+
+    /**
      * Transform the resource into an array.
      *
      * @return array<string, mixed>
@@ -36,6 +62,24 @@ class BaseResource extends JsonResource
     public function toArray(Request $request): array
     {
         return is_array($this->resource) ? $this->resource : $this->resource->toArray();
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function toResponse($request): JsonResponse
+    {
+        $response = response()->json(
+            $this->withResponseData($request),
+            $this->statusCode
+        );
+
+        if ($this->cookie) {
+            $response->withCookie($this->cookie);
+        }
+
+        return $response;
     }
 
     /**
@@ -49,17 +93,5 @@ class BaseResource extends JsonResource
             'message' => $this->message,
             'data' => $this->toArray($request),
         ];
-    }
-
-    /**
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function toResponse($request): JsonResponse
-    {
-        return response()->json(
-            $this->withResponseData($request),
-            $this->statusCode
-        );
     }
 }

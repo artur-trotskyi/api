@@ -3,6 +3,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\DTO\UserTokenDTO;
 use App\Enums\ExceptionMessagesEnum;
 use App\Enums\ResourceMessagesEnum;
 use App\Http\Requests\Auth\AuthLoginRequest;
@@ -11,9 +12,9 @@ use App\Http\Resources\Auth\AuthResource;
 use App\Models\User;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Symfony\Component\HttpFoundation\Response;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenBlacklistedException;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -44,35 +45,33 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
      * Register a new user.
      *
      * @param AuthRegisterRequest $request
-     * @return JsonResponse
+     * @return AuthResource
      */
-    public function register(AuthRegisterRequest $request): JsonResponse
+    public function register(AuthRegisterRequest $request): AuthResource
     {
         $registerRequestData = $request->validated();
         $user = User::create($registerRequestData);
         $token = JWTAuth::fromUser($user);
 
-        $userData = [
-            'user' => $user,
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'expires_in' => JWTAuth::factory()->getTTL() * 60,
-        ];
+        $userTokenDTO = (new UserTokenDTO(
+            accessToken: $token,
+            expiresIn: JWTAuth::factory()->getTTL() * 60,
+            user: $user,
+        ))->toArray();
 
-        return (new AuthResource($userData, ResourceMessagesEnum::RegisterSuccessful->message()))
-            ->response()
-            ->setStatusCode(201);
+        return AuthResource::make($userTokenDTO, ResourceMessagesEnum::RegisterSuccessful->message())
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**
      * Log a user and get a token via given credentials.
      *
      * @param AuthLoginRequest $request
-     * @return JsonResponse
+     * @return AuthResource
      * @throws AuthenticationException
      * @throws Exception
      */
-    public function login(AuthLoginRequest $request): JsonResponse
+    public function login(AuthLoginRequest $request): AuthResource
     {
         $credentials = $request->only('email', 'password');
         try {
@@ -86,15 +85,13 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
             // (optional) Attach the role to the token.
             // $token = JWTAuth::claims(['role' => $user->role])->fromUser($user);
 
-            $userData = [
-                'user' => $user,
-                'access_token' => $token,
-                'token_type' => 'Bearer',
-                'expires_in' => JWTAuth::factory()->getTTL() * 60,
-            ];
+            $userTokenDTO = (new UserTokenDTO(
+                accessToken: $token,
+                expiresIn: JWTAuth::factory()->getTTL() * 60,
+                user: $user,
+            ))->toArray();
 
-            return (new AuthResource($userData, ResourceMessagesEnum::LoginSuccessful->message()))
-                ->response();
+            return AuthResource::make($userTokenDTO, ResourceMessagesEnum::LoginSuccessful->message());
         } catch (JWTException $e) {
             throw new Exception(ExceptionMessagesEnum::CouldNotCreateToken->message());
         }
@@ -103,10 +100,10 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
     /**
      * Get the authenticated user.
      *
-     * @return JsonResponse
+     * @return AuthResource
      * @throws AuthenticationException
      */
-    public function me(): JsonResponse
+    public function me(): AuthResource
     {
         try {
             $user = JWTAuth::parseToken()->authenticate();
@@ -121,41 +118,37 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
             'user' => $user,
         ];
 
-        return (new AuthResource($userData, ResourceMessagesEnum::DataRetrievedSuccessfully->message()))
-            ->response();
+        return AuthResource::make($userData, ResourceMessagesEnum::DataRetrievedSuccessfully->message());
     }
 
     /**
      * Log the user out (Invalidate the token).
      *
-     * @return JsonResponse
+     * @return AuthResource
      */
-    public function logout(): JsonResponse
+    public function logout(): AuthResource
     {
         JWTAuth::invalidate(JWTAuth::getToken());
 
-        return (new AuthResource([], ResourceMessagesEnum::YouAreLoggedOut->message()))
-            ->response();
+        return AuthResource::make([], ResourceMessagesEnum::YouAreLoggedOut->message());
     }
 
     /**
      * Refresh access token.
      *
-     * @return JsonResponse
+     * @return AuthResource
      * @throws Exception
      */
-    public function refresh(): JsonResponse
+    public function refresh(): AuthResource
     {
         try {
             $token = JWTAuth::refresh(JWTAuth::getToken());
-            $tokenData = [
-                'access_token' => $token,
-                'token_type' => 'Bearer',
-                'expires_in' => JWTAuth::factory()->getTTL() * 60,
-            ];
+            $userTokenDTO = (new UserTokenDTO(
+                accessToken: $token,
+                expiresIn: JWTAuth::factory()->getTTL() * 60,
+            ))->toArray();
 
-            return (new AuthResource($tokenData, ResourceMessagesEnum::LoginSuccessful->message()))
-                ->response();
+            return AuthResource::make($userTokenDTO, ResourceMessagesEnum::LoginSuccessful->message());
 
         } catch (TokenBlacklistedException $e) {
             throw new AuthenticationException(ExceptionMessagesEnum::TokenHasBeenBlacklisted->message());
