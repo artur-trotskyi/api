@@ -2,12 +2,14 @@
 
 namespace Tests\Feature\Auth;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\WithoutDeprecationHandlingTrait;
 use Throwable;
 
 class LoginTest extends TestCase
 {
+    use RefreshDatabase;
     use WithoutDeprecationHandlingTrait;
 
     /**

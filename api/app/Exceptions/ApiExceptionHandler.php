@@ -7,6 +7,7 @@ use App\Http\Resources\ErrorResource;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\QueryException;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
@@ -68,6 +69,11 @@ class ApiExceptionHandler
                 $this->message = ExceptionMessagesEnum::NotFound->message();
                 $this->code = Response::HTTP_NOT_FOUND;
                 $this->errors[] = ExceptionMessagesEnum::ResourceNotFound->message();
+                break;
+            case $exception instanceof ThrottleRequestsException:
+                $this->message = ExceptionMessagesEnum::TooManyRequests->message();
+                $this->code = Response::HTTP_TOO_MANY_REQUESTS;
+                $this->errors[] = $exception->getMessage();
                 break;
             default:
                 $this->message = ExceptionMessagesEnum::InternalServerError->message();

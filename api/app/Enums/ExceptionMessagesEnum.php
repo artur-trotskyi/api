@@ -22,4 +22,5 @@ enum ExceptionMessagesEnum: string
     case TheProvidedCredentialsAreIncorrect = 'The provided credentials are incorrect.';
     case ResourceNotFound = 'The requested resource could not be found.';
     case ValidationError = 'Validation error.';
+    case TooManyRequests = 'You have exceeded the allowed number of requests.';
 }

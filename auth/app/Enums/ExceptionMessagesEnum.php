@@ -28,6 +28,7 @@ enum ExceptionMessagesEnum: string
     case InvalidToken = 'Invalid token.';
     case TokenHasBeenBlacklisted = 'The token has been blacklisted. Please log in again.';
     case CouldNotRefreshToken = 'Could not refresh token.';
+    case TooManyRequests = 'You have exceeded the allowed number of requests.';
 
     /**
      * @param string $driver

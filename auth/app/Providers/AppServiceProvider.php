@@ -5,12 +5,10 @@ namespace App\Providers;
 use App\Enums\AuthDriverEnum;
 use App\Enums\TokenAbilityEnum;
 use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\Sanctum;
-use Symfony\Component\HttpFoundation\Response;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -42,20 +40,9 @@ class AppServiceProvider extends ServiceProvider
     protected function configureRateLimiting(): void
     {
         RateLimiter::for('api', function (Request $request) {
-            $limit = $request->user()
+            return $request->user()
                 ? Limit::perSecond(2)->by($request->user()->id)
                 : Limit::perSecond(1)->by($request->ip());
-
-            return $limit->response(function ($request) {
-                $errorData = [
-                    'message' => 'Too Many Attempts',
-                    'errors' => ['Too Many Attempts'],
-                ];
-
-                throw new HttpResponseException(
-                    response()->json($errorData, Response::HTTP_TOO_MANY_REQUESTS)
-                );
-            });
         });
     }
 
