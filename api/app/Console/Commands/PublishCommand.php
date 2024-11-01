@@ -28,7 +28,7 @@ class PublishCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle(): int
     {
         $connection = null;
         $channel = null;
@@ -88,9 +88,11 @@ class PublishCommand extends Command
         } catch (Exception $e) {
             // Handle any exceptions that occur during processing
             $this->error("[x] Error: " . $e->getMessage());
+            return self::FAILURE;
         } finally {
             // Close the channel and connection
             $this->closeChannelAndConnection($channel, $connection);
+            return self::SUCCESS;
         }
     }
 

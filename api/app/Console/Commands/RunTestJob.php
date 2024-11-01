@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Jobs\TestJob;
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Command\Command as CommandAlias;
 
 class RunTestJob extends Command
 {
@@ -31,6 +30,6 @@ class RunTestJob extends Command
 
         $this->info('TestJob has been successfully added to the queue.');
 
-        return CommandAlias::SUCCESS;
+        return self::SUCCESS;
     }
 }

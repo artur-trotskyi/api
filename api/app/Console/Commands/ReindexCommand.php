@@ -43,13 +43,13 @@ class ReindexCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle(): int
     {
         try {
             // Check the connection to Elasticsearch
             if (!$this->elasticsearchService->checkConnection()) {
                 $this->error('Could not connect to Elasticsearch.');
-                return;
+                return self::FAILURE;
             }
 
             // Check if the index exists and create it if necessary
@@ -58,7 +58,7 @@ class ReindexCommand extends Command
                 $isIndexCreated = $this->elasticsearchService->createIndex($searchIndex);
                 if (!$isIndexCreated) {
                     $this->error('Failed to create index.');
-                    return;
+                    return self::FAILURE;
                 }
                 $this->info('Created Posts index.');
             }
@@ -66,7 +66,7 @@ class ReindexCommand extends Command
             // Deleted all documents in the Posts index.
             if (!$this->elasticsearchService->deleteAllDocuments($searchIndex)) {
                 $this->error('Failed to delete all documents in the Posts index.');
-                return;
+                return self::FAILURE;
             }
             $this->info('Deleted all documents in the Posts index.');
 
@@ -76,13 +76,16 @@ class ReindexCommand extends Command
             if (!empty($bulkData)) {
                 if (!$this->elasticsearchService->bulkIndexDocuments($bulkData)) {
                     $this->error('Failed to perform bulk indexing.');
-                    return;
+                    return self::FAILURE;
                 }
                 $this->info('All Posts have been indexed successfully!');
             }
 
         } catch (Exception $e) {
             $this->error('Unexpected error: ' . $e->getMessage());
+            return self::FAILURE;
         }
+
+        return self::SUCCESS;
     }
 }

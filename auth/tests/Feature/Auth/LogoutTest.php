@@ -4,9 +4,12 @@ namespace Tests\Feature\Auth;
 
 use Laravel\Sanctum\PersonalAccessToken;
 use Tests\TestCase;
+use Tests\Traits\WithoutDeprecationHandlingTrait;
 
 class LogoutTest extends TestCase
 {
+    use WithoutDeprecationHandlingTrait;
+
     /**
      * @return void
      */

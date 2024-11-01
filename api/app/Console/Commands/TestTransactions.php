@@ -6,7 +6,6 @@ use App\Services\PostService;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Symfony\Component\Console\Command\Command as CommandAlias;
 
 class TestTransactions extends Command
 {
@@ -62,8 +61,9 @@ class TestTransactions extends Command
         } catch (Exception $e) {
             DB::rollBack();
             $this->error('Error creating posts: ' . $e->getMessage());
+            return self::FAILURE;
         }
 
-        return CommandAlias::SUCCESS;
+        return self::SUCCESS;
     }
 }

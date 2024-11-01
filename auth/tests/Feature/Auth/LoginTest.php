@@ -3,10 +3,13 @@
 namespace Tests\Feature\Auth;
 
 use Tests\TestCase;
+use Tests\Traits\WithoutDeprecationHandlingTrait;
 use Throwable;
 
 class LoginTest extends TestCase
 {
+    use WithoutDeprecationHandlingTrait;
+
     /**
      * @return void
      */
