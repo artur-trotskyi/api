@@ -1,11 +1,14 @@
 <?php
 
-namespace App\DTO;
+namespace App\Dto;
 
 use App\Models\User;
+use App\Traits\MakeableTrait;
 
-readonly class UserTokenDTO
+final readonly class UserTokenDto
 {
+    use MakeableTrait;
+
     public function __construct(
         public string $accessToken,
         public int $expiresIn,

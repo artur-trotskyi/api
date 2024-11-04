@@ -48,6 +48,6 @@ class PostUpdateRequest extends FormRequest
      */
     public function getDto(): PostUpdateDto
     {
-        return new PostUpdateDto($this->validated());
+        return PostUpdateDto::make($this->validated());
     }
 }

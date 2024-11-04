@@ -6,7 +6,7 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\DTO\UserTokenDTO;
+use App\Dto\UserTokenDto;
 use App\Enums\ExceptionMessagesEnum;
 use App\Enums\ResourceMessagesEnum;
 use App\Enums\TokenAbilityEnum;
@@ -63,13 +63,13 @@ class SanctumAuthController extends AuthBaseController
         $cookie = $this->authService
             ->generateRefreshTokenCookie($tokens['refresh']['refreshToken'], $tokens['refresh']['refreshTokenExpireTime']);
 
-        $userTokenDTO = (new UserTokenDTO(
+        $userTokenDto = UserTokenDto::make(
             accessToken: $tokens['access']['accessToken'],
             expiresIn: $tokens['access']['accessTokenExpireTime'],
             user: $user,
-        ))->toArray();
+        )->toArray();
 
-        return AuthResource::make($userTokenDTO, ResourceMessagesEnum::RegisterSuccessful->message())
+        return AuthResource::make($userTokenDto, ResourceMessagesEnum::RegisterSuccessful->message())
             ->setCookie($cookie)
             ->setStatusCode(Response::HTTP_CREATED);
     }
@@ -94,13 +94,13 @@ class SanctumAuthController extends AuthBaseController
         $tokens = $this->authService->generateTokens($user);
         $cookie = $this->authService->generateRefreshTokenCookie($tokens['refresh']['refreshToken'], $tokens['refresh']['refreshTokenExpireTime']);
 
-        $userTokenDTO = (new UserTokenDTO(
+        $userTokenDto = UserTokenDto::make(
             accessToken: $tokens['access']['accessToken'],
             expiresIn: $tokens['access']['accessTokenExpireTime'],
             user: $user,
-        ))->toArray();
+        )->toArray();
 
-        return AuthResource::make($userTokenDTO, ResourceMessagesEnum::LoginSuccessful->message())
+        return AuthResource::make($userTokenDto, ResourceMessagesEnum::LoginSuccessful->message())
             ->setCookie($cookie);
     }
 
@@ -180,12 +180,12 @@ class SanctumAuthController extends AuthBaseController
         $cookie = $this->authService
             ->generateRefreshTokenCookie($tokens['refresh']['refreshToken'], $tokens['refresh']['refreshTokenExpireTime']);
 
-        $userTokenDTO = (new UserTokenDTO(
+        $userTokenDto = UserTokenDto::make(
             accessToken: $tokens['access']['accessToken'],
             expiresIn: $tokens['access']['accessTokenExpireTime'],
-        ))->toArray();
+        )->toArray();
 
-        return AuthResource::make($userTokenDTO, ResourceMessagesEnum::LoginSuccessful->message())
+        return AuthResource::make($userTokenDto, ResourceMessagesEnum::LoginSuccessful->message())
             ->setCookie($cookie);
     }
 }

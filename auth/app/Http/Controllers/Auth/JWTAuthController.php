@@ -4,7 +4,7 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\DTO\UserTokenDTO;
+use App\Dto\UserTokenDto;
 use App\Enums\ExceptionMessagesEnum;
 use App\Enums\ResourceMessagesEnum;
 use App\Http\Requests\Auth\AuthLoginRequest;
@@ -48,13 +48,13 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
         $user = User::create($registerRequestData);
         $token = JWTAuth::fromUser($user);
 
-        $userTokenDTO = (new UserTokenDTO(
+        $userTokenDto = UserTokenDto::make(
             accessToken: $token,
             expiresIn: JWTAuth::factory()->getTTL() * 60,
             user: $user,
-        ))->toArray();
+        )->toArray();
 
-        return AuthResource::make($userTokenDTO, ResourceMessagesEnum::RegisterSuccessful->message())
+        return AuthResource::make($userTokenDto, ResourceMessagesEnum::RegisterSuccessful->message())
             ->setStatusCode(Response::HTTP_CREATED);
     }
 
@@ -78,13 +78,13 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
             // (optional) Attach the role to the token.
             // $token = JWTAuth::claims(['role' => $user->role])->fromUser($user);
 
-            $userTokenDTO = (new UserTokenDTO(
+            $userTokenDto = UserTokenDto::make(
                 accessToken: $token,
                 expiresIn: JWTAuth::factory()->getTTL() * 60,
                 user: $user,
-            ))->toArray();
+            )->toArray();
 
-            return AuthResource::make($userTokenDTO, ResourceMessagesEnum::LoginSuccessful->message());
+            return AuthResource::make($userTokenDto, ResourceMessagesEnum::LoginSuccessful->message());
         } catch (JWTException $e) {
             throw new Exception(ExceptionMessagesEnum::CouldNotCreateToken->message());
         }
@@ -132,12 +132,12 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
     {
         try {
             $token = JWTAuth::refresh(JWTAuth::getToken());
-            $userTokenDTO = (new UserTokenDTO(
+            $userTokenDto = UserTokenDto::make(
                 accessToken: $token,
                 expiresIn: JWTAuth::factory()->getTTL() * 60,
-            ))->toArray();
+            )->toArray();
 
-            return AuthResource::make($userTokenDTO, ResourceMessagesEnum::LoginSuccessful->message());
+            return AuthResource::make($userTokenDto, ResourceMessagesEnum::LoginSuccessful->message());
 
         } catch (TokenBlacklistedException $e) {
             throw new AuthenticationException(ExceptionMessagesEnum::TokenHasBeenBlacklisted->message());

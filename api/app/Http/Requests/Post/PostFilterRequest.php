@@ -44,6 +44,6 @@ class PostFilterRequest extends FormRequest
      */
     public function getDto(): PostFilterDto
     {
-        return new PostFilterDto($this->validated());
+        return PostFilterDto::make($this->validated());
     }
 }

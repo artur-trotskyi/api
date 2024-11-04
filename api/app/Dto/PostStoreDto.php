@@ -2,8 +2,12 @@
 
 namespace App\Dto;
 
-class PostStoreDto
+use App\Traits\MakeableTrait;
+
+final readonly class PostStoreDto
 {
+    use MakeableTrait;
+
     public int $user_id;
 
     public string $title;

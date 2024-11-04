@@ -48,6 +48,6 @@ class PostStoreRequest extends FormRequest
      */
     public function getDto(): PostStoreDto
     {
-        return new PostStoreDto($this->validated());
+        return PostStoreDto::make($this->validated());
     }
 }

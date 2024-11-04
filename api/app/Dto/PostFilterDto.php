@@ -2,8 +2,12 @@
 
 namespace App\Dto;
 
-class PostFilterDto
+use App\Traits\MakeableTrait;
+
+final readonly class PostFilterDto
 {
+    use MakeableTrait;
+
     public ?string $q;
 
     public int $itemsPerPage;
