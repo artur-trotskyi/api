@@ -5,14 +5,17 @@ namespace App\Dto;
 class PostUpdateDto
 {
     public int $user_id;
+
     public string $title;
+
     public string $content;
+
     public array $tags;
 
     /**
      * PostFilterDto constructor.
      *
-     * @param array $data An associative array with data for update posts.
+     * @param  array  $data  An associative array with data for update posts.
      */
     public function __construct(array $data)
     {

@@ -12,9 +12,6 @@ class LogoutTest extends TestCase
     use RefreshDatabase;
     use WithoutDeprecationHandlingTrait;
 
-    /**
-     * @return void
-     */
     public function testCanLogout(): void
     {
         $user = AuthTestHelper::mockUser();
@@ -34,15 +31,12 @@ class LogoutTest extends TestCase
         $response->assertJson([
             'success' => true,
             'message' => 'You are successfully logged out.',
-            'data' => []
+            'data' => [],
         ]);
 
         AuthTestHelper::clearUser($user);
     }
 
-    /**
-     * @return void
-     */
     public function testCanLogoutWithExpiredSession(): void
     {
         $response = $this->postJson(route('auth.logout'));
@@ -54,7 +48,7 @@ class LogoutTest extends TestCase
         $response->assertJson([
             'success' => true,
             'message' => 'Already logged out.',
-            'data' => []
+            'data' => [],
         ]);
     }
 }

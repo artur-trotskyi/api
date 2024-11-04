@@ -6,26 +6,13 @@ use App\Models\User;
 
 readonly class UserTokenDTO
 {
-    /**
-     * @param string $accessToken
-     * @param int $expiresIn
-     * @param string $tokenType
-     * @param User|null $user
-     */
-    public function __construct
-    (
+    public function __construct(
         public string $accessToken,
-        public int    $expiresIn,
+        public int $expiresIn,
         public string $tokenType = 'Bearer',
-        public ?User  $user = null,
-    )
-    {
-        //
-    }
+        public ?User $user = null,
+    ) {}
 
-    /**
-     * @return array
-     */
     public function toArray(): array
     {
         $data = [
@@ -41,4 +28,3 @@ readonly class UserTokenDTO
         return $data;
     }
 }
-

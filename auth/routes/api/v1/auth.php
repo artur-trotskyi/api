@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 $authService = app(AuthService::class);
 $authController = $authService->resolveAuthController();
 
-Route::prefix('auth')->as('auth.')->group(function () use ($authController) {
+Route::prefix('auth')->as('auth.')->group(function () use ($authController): void {
     Route::post('register', [$authController, 'register'])->name('register');
     Route::post('login', [$authController, 'login'])->name('login');
     Route::post('logout', [$authController, 'logout'])->name('logout');

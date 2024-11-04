@@ -15,15 +15,11 @@ class BaseService
 
     /**
      * Repository.
-     *
-     * @var object
      */
     public object $repo;
 
     /**
      * Get all data.
-     *
-     * @return Collection
      */
     public function all(): Collection
     {
@@ -32,9 +28,6 @@ class BaseService
 
     /**
      * Create new record.
-     *
-     * @param array $data
-     * @return model
      */
     public function create(array $data): Model
     {
@@ -43,18 +36,15 @@ class BaseService
 
     /**
      * Find record by id.
-     *
-     * @param string $id
-     * @return Model|null
      */
     public function getById(string $id): ?Model
     {
-        if (!Str::isUuid($id)) {
+        if (! Str::isUuid($id)) {
             throw new NotFoundHttpException(ExceptionMessagesEnum::InvalidUuidWithField->message());
         }
 
         $model = $this->repo->getById($id);
-        if (!$model) {
+        if (! $model) {
             throw new NotFoundHttpException(ExceptionMessagesEnum::DataNotFound->message());
         }
 
@@ -63,21 +53,14 @@ class BaseService
 
     /**
      * Update data.
-     *
-     * @param string $id
-     * @param array $data
-     * @return bool
      */
     public function update(string $id, array $data): bool
     {
-        return (bool)$this->repo->update($id, $data);
+        return (bool) $this->repo->update($id, $data);
     }
 
     /**
      * Delete record by id.
-     *
-     * @param string $id
-     * @return bool
      */
     public function destroy(string $id): bool
     {

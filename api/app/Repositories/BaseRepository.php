@@ -10,14 +10,16 @@ use Illuminate\Support\LazyCollection;
 abstract class BaseRepository implements BaseInterface
 {
     public string $sortBy = 'created_at';
+
     public string $sortOrder = 'asc';
+
     protected Model $model;
 
     /**
      * Repo Constructor
      * Override to clarify typehinted model.
      *
-     * @param Model $model Repo DB ORM Model
+     * @param  Model  $model  Repo DB ORM Model
      */
     public function __construct(Model $model)
     {
@@ -26,8 +28,6 @@ abstract class BaseRepository implements BaseInterface
 
     /**
      * Get all instances of model.
-     *
-     * @return Collection
      */
     public function all(): Collection
     {
@@ -38,8 +38,6 @@ abstract class BaseRepository implements BaseInterface
 
     /**
      * Get a cursor for the model.
-     *
-     * @return LazyCollection
      */
     public function cursor(): LazyCollection
     {
@@ -48,9 +46,6 @@ abstract class BaseRepository implements BaseInterface
 
     /**
      * Create a new record in the database.
-     *
-     * @param array $data
-     * @return model
      */
     public function create(array $data): Model
     {
@@ -59,9 +54,6 @@ abstract class BaseRepository implements BaseInterface
 
     /**
      * Show the record with the given id.
-     *
-     * @param string $id
-     * @return Model|null
      */
     public function getById(string $id): ?Model
     {
@@ -70,25 +62,19 @@ abstract class BaseRepository implements BaseInterface
 
     /**
      * Update record in the database and get data back.
-     *
-     * @param string $id
-     * @param array $data
-     * @return bool
      */
     public function update(string $id, array $data): bool
     {
         $query = $this->model->where('id', $id);
-        return (bool)$query->update($data);
+
+        return (bool) $query->update($data);
     }
 
     /**
      * Remove record from the database.
-     *
-     * @param string $id
-     * @return bool
      */
     public function destroy(string $id): bool
     {
-        return (bool)$this->model->destroy($id);
+        return (bool) $this->model->destroy($id);
     }
 }

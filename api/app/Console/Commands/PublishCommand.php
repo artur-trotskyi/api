@@ -39,7 +39,7 @@ class PublishCommand extends Command
             $channel = $connection->channel();
 
             // Declare a temporary queue for responses
-            list($callbackQueue, ,) = $channel->queue_declare("", false, false, true, false);
+            [$callbackQueue] = $channel->queue_declare('', false, false, true, false);
 
             $correlationId = Uuid::uuid4()->toString();
 
@@ -54,12 +54,12 @@ class PublishCommand extends Command
 
             // Publish the message to the 'auth' exchange
             $channel->basic_publish($msg, '', 'auth');
-            $this->info("[x] Sent request with Correlation ID: $correlationId");
+            $this->info("[x] Sent request with Correlation ID: {$correlationId}");
 
             $response = null;
 
             // Callback function to handle responses
-            $callback = function (AMQPMessage $msg) use (&$response, $correlationId) {
+            $callback = function (AMQPMessage $msg) use (&$response, $correlationId): void {
                 if ($msg->get('correlation_id') === $correlationId) {
                     $response = json_decode($msg->getBody(), true);
                 }
@@ -74,33 +74,30 @@ class PublishCommand extends Command
                     // Wait for messages with a timeout of 5 seconds
                     $channel->wait(null, false, 5);
                 } catch (AMQPTimeoutException $e) {
-                    $this->info("[x] Timeout waiting for response.");
+                    $this->info('[x] Timeout waiting for response.');
                     break;
                 }
             }
 
             // Output the received response
             if ($response) {
-                $this->info("[x] Received response: " . print_r($response, true));
+                $this->info('[x] Received response: ' . print_r($response, true));
             } else {
-                $this->info("[x] No response received.");
+                $this->info('[x] No response received.');
             }
         } catch (Exception $e) {
             // Handle any exceptions that occur during processing
-            $this->error("[x] Error: " . $e->getMessage());
+            $this->error('[x] Error: ' . $e->getMessage());
+
             return self::FAILURE;
         } finally {
             // Close the channel and connection
             $this->closeChannelAndConnection($channel, $connection);
+
             return self::SUCCESS;
         }
     }
 
-    /**
-     * @param $channel
-     * @param $connection
-     * @return void
-     */
     private function closeChannelAndConnection($channel, $connection): void
     {
         // Close the channel if it exists
@@ -108,7 +105,7 @@ class PublishCommand extends Command
             try {
                 $channel->close();
             } catch (Exception $e) {
-                $this->error("[x] Error closing channel: " . $e->getMessage());
+                $this->error('[x] Error closing channel: ' . $e->getMessage());
             }
         }
         // Close the connection if it exists
@@ -116,7 +113,7 @@ class PublishCommand extends Command
             try {
                 $connection->close();
             } catch (Exception $e) {
-                $this->error("[x] Error closing connection: " . $e->getMessage());
+                $this->error('[x] Error closing connection: ' . $e->getMessage());
             }
         }
     }

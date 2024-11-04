@@ -18,9 +18,6 @@ class PostUpdateRequest extends FormRequest
         return true;
     }
 
-    /**
-     * @return void
-     */
     public function prepareForValidation(): void
     {
         $this->merge([

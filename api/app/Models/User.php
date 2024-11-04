@@ -36,6 +36,31 @@ class User extends Authenticatable
         'deleted_at',
     ];
 
+    public function getCreatedAtAttribute($value): string
+    {
+        return Carbon::parse($value)->toDateTimeString();
+    }
+
+    public function getUpdatedAtAttribute($value): string
+    {
+        return Carbon::parse($value)->toDateTimeString();
+    }
+
+    public function getDeletedAtAttribute($value): string
+    {
+        return Carbon::parse($value)->toDateTimeString();
+    }
+
+    public function getEmailVerifiedAtAttribute($value): string
+    {
+        return Carbon::parse($value)->toDateTimeString();
+    }
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *
@@ -47,49 +72,5 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-
-    /**
-     * @param $value
-     * @return string
-     */
-    public function getCreatedAtAttribute($value): string
-    {
-        return Carbon::parse($value)->toDateTimeString();
-    }
-
-    /**
-     * @param $value
-     * @return string
-     */
-    public function getUpdatedAtAttribute($value): string
-    {
-        return Carbon::parse($value)->toDateTimeString();
-    }
-
-    /**
-     * @param $value
-     * @return string
-     */
-    public function getDeletedAtAttribute($value): string
-    {
-        return Carbon::parse($value)->toDateTimeString();
-    }
-
-    /**
-     * @param $value
-     * @return string
-     */
-    public function getEmailVerifiedAtAttribute($value): string
-    {
-        return Carbon::parse($value)->toDateTimeString();
-    }
-
-    /**
-     * @return HasMany
-     */
-    public function posts(): HasMany
-    {
-        return $this->hasMany(Post::class);
     }
 }

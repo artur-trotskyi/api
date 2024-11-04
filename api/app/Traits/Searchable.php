@@ -11,10 +11,20 @@ use Elastic\Elasticsearch\Exception\ServerResponseException;
 trait Searchable
 {
     /**
+     * Convert the model to an array suitable for indexing in Elasticsearch.
+     */
+    abstract public function toElasticsearchDocumentArray(): array;
+
+    /**
+     * Get the name of the Elasticsearch index associated with the model.
+     *
+     * @return string The name of the index.
+     */
+    abstract public static function getSearchIndex(): string;
+
+    /**
      * Boot the Searchable trait for the model.
      * Observes the ElasticsearchObserver if search is enabled in configuration.
-     *
-     * @return void
      */
     public static function bootSearchable(): void
     {
@@ -24,8 +34,8 @@ trait Searchable
     /**
      * Index the model in Elasticsearch.
      *
-     * @param Client $elasticsearchClient The Elasticsearch client instance.
-     * @return void
+     * @param  Client  $elasticsearchClient  The Elasticsearch client instance.
+     *
      * @throws ClientResponseException If there is a client error during indexing.
      * @throws MissingParameterException If a required parameter is missing.
      * @throws ServerResponseException If there is a server error during indexing.
@@ -42,8 +52,8 @@ trait Searchable
     /**
      * Delete the model from Elasticsearch.
      *
-     * @param Client $elasticsearchClient The Elasticsearch client instance.
-     * @return void
+     * @param  Client  $elasticsearchClient  The Elasticsearch client instance.
+     *
      * @throws ServerResponseException If there is a server error during deletion.
      * @throws MissingParameterException If a required parameter is missing.
      * @throws ClientResponseException If there is a client error during deletion.
@@ -55,19 +65,4 @@ trait Searchable
             'id' => $this->getKey(),
         ]);
     }
-
-    /**
-     * Convert the model to an array suitable for indexing in Elasticsearch.
-     *
-     * @return array
-     */
-    abstract public function toElasticsearchDocumentArray(): array;
-
-    /**
-     * Get the name of the Elasticsearch index associated with the model.
-     *
-     * @return string The name of the index.
-     */
-    abstract static function getSearchIndex(): string;
 }
-

@@ -12,8 +12,7 @@ class TransformApiResponseMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure(Request): (Response) $next
+     * @param  Closure(Request): (Response)  $next
      * @return mixed|Response
      */
     public function handle(Request $request, Closure $next): mixed
@@ -34,9 +33,6 @@ class TransformApiResponseMiddleware
 
     /**
      * Transform keys of an array to camelCase.
-     *
-     * @param array $data
-     * @return array
      */
     private function transformKeysToCamelCase(array $data): array
     {
@@ -45,6 +41,7 @@ class TransformApiResponseMiddleware
             $camelKey = Str::camel($key);
             $result[$camelKey] = is_array($value) ? $this->transformKeysToCamelCase($value) : $value;
         }
+
         return $result;
     }
 }

@@ -13,18 +13,12 @@ class PostObserver
     /**
      * Handle the Post "created" event.
      */
-    public function created(Post $post): void
-    {
-        //
-    }
+    public function created(Post $post): void {}
 
     /**
      * Handle the Post "updated" event.
      */
-    public function updated(Post $post): void
-    {
-        //
-    }
+    public function updated(Post $post): void {}
 
     /**
      * Handle the Post "deleted" event.
@@ -38,10 +32,7 @@ class PostObserver
     /**
      * Handle the Post "restored" event.
      */
-    public function restored(Post $post): void
-    {
-        //
-    }
+    public function restored(Post $post): void {}
 
     /**
      * Handle the Post "force deleted" event.

@@ -13,17 +13,17 @@ class BaseCollection extends JsonResource
     public static $wrap = null;
 
     protected string $message;
+
     protected int $statusCode;
+
     protected bool $success;
 
-    public function __construct
-    (
-        mixed  $resource,
+    public function __construct(
+        mixed $resource,
         string $message = ResourceMessagesEnum::DefaultSuccessfully->value,
-        int    $statusCode = Response::HTTP_OK,
-        bool   $success = true
-    )
-    {
+        int $statusCode = Response::HTTP_OK,
+        bool $success = true
+    ) {
         parent::__construct($resource);
         $this->message = $message;
         $this->statusCode = $statusCode;
@@ -47,8 +47,7 @@ class BaseCollection extends JsonResource
     }
 
     /**
-     * @param Request $request
-     * @return JsonResponse
+     * @param  Request  $request
      */
     public function toResponse($request): JsonResponse
     {

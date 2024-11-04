@@ -5,8 +5,6 @@ namespace App\Services;
 use App\Enums\AuthDriverEnum;
 use App\Enums\ExceptionMessagesEnum;
 use App\Enums\TokenAbilityEnum;
-use App\Http\Controllers\Auth\JWTAuthController;
-use App\Http\Controllers\Auth\SanctumAuthController;
 use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Cookie\CookieJar;
@@ -16,21 +14,17 @@ use Symfony\Component\HttpFoundation\Cookie;
 
 class AuthService extends BaseService
 {
-    public function __construct()
-    {
-        //
-    }
+    public function __construct() {}
 
     /**
      * Resolves and returns an instance of the appropriate authentication controller.
      *
-     * @return string
      * @throws InvalidArgumentException If the auth driver is not supported.
      */
     public function resolveAuthController(): string
     {
         $authDriver = config('auth.auth_driver');
-        if (!AuthDriverEnum::isValid($authDriver)) {
+        if (! AuthDriverEnum::isValid($authDriver)) {
             throw new InvalidArgumentException(ExceptionMessagesEnum::unsupportedDriverMessage($authDriver));
         }
 
@@ -42,7 +36,7 @@ class AuthService extends BaseService
     /**
      * Generate access and refresh tokens for the authenticated user.
      *
-     * @param User|Authenticatable $user The authenticated user instance.
+     * @param  User|Authenticatable  $user  The authenticated user instance.
      * @return array{
      *     accessToken: string,
      *     refreshToken: string,
@@ -72,10 +66,6 @@ class AuthService extends BaseService
 
     /**
      * Generates a secure refresh token cookie.
-     *
-     * @param string $refreshToken
-     * @param int $rtExpireTime
-     * @return Application|CookieJar|Cookie
      */
     public function generateRefreshTokenCookie(string $refreshToken, int $rtExpireTime): Application|CookieJar|Cookie
     {

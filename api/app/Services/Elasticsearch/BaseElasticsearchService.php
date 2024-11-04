@@ -11,16 +11,12 @@ class BaseElasticsearchService
 {
     /**
      * Repository.
-     *
-     * @var object
      */
     public object $repo;
 
     /**
      * Check if an index exists in Elasticsearch.
      *
-     * @param string $index
-     * @return bool
      * @throws ClientResponseException If a client error occurs.
      * @throws MissingParameterException If a required parameter is missing.
      * @throws ServerResponseException If a server error occurs.
@@ -34,8 +30,9 @@ class BaseElasticsearchService
     /**
      * Creates an index in Elasticsearch with the specified mappings.
      *
-     * @param string $index The name of the index to create.
+     * @param  string  $index  The name of the index to create.
      * @return bool The response from the Elasticsearch client.
+     *
      * @throws ClientResponseException If a client error occurs.
      * @throws MissingParameterException If a required parameter is missing.
      * @throws ServerResponseException If a server error occurs.
@@ -50,6 +47,7 @@ class BaseElasticsearchService
      * Check the connection to Elasticsearch by pinging the server.
      *
      * @return bool True if Elasticsearch is available, false otherwise.
+     *
      * @throws ClientResponseException If a client error occurs.
      * @throws ServerResponseException If a server error occurs.
      */
@@ -61,8 +59,6 @@ class BaseElasticsearchService
     /**
      * Delete all documents from the specified index.
      *
-     * @param string $index
-     * @return bool
      * @throws Exception If an unexpected error occurs.
      */
     public function deleteAllDocuments(string $index): bool
@@ -73,9 +69,10 @@ class BaseElasticsearchService
     /**
      * Delete a document from the specified index by its ID.
      *
-     * @param string $index The name of the Elasticsearch index.
-     * @param string $id The ID of the document to delete.
+     * @param  string  $index  The name of the Elasticsearch index.
+     * @param  string  $id  The ID of the document to delete.
      * @return bool True on success, false on failure.
+     *
      * @throws Exception If an unexpected error occurs.
      */
     public function deleteDocument(string $index, string $id): bool
@@ -86,7 +83,7 @@ class BaseElasticsearchService
     /**
      * Perform bulk indexing of documents in Elasticsearch.
      *
-     * @param array $bulkData The bulk data to be indexed.
+     * @param  array  $bulkData  The bulk data to be indexed.
      * @return bool True if the bulk indexing was successful, false otherwise.
      */
     public function bulkIndexDocuments(array $bulkData): bool
@@ -97,15 +94,10 @@ class BaseElasticsearchService
     /**
      * Search for items in Elasticsearch based on the given query.
      *
-     * @param string|null $query The search query.
-     * @param int $itemsPerPage
-     * @param int $page
-     * @param array $strictFilters
-     * @param string|null $sortBy
-     * @param string|null $orderBy
+     * @param  string|null  $query  The search query.
      * @return array A collection of search results.
      */
-    public function search(string|null $query, int $itemsPerPage, int $page, array $strictFilters, string|null $sortBy, string|null $orderBy): array
+    public function search(?string $query, int $itemsPerPage, int $page, array $strictFilters, ?string $sortBy, ?string $orderBy): array
     {
         return $this->repo->search($query, $itemsPerPage, $page, $strictFilters, $sortBy, $orderBy);
     }

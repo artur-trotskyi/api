@@ -14,8 +14,6 @@ class ExampleTest extends TestCase
 
     /**
      * A basic test example.
-     *
-     * @return void
      */
     public function testTheApplicationReturnsASuccessfulResponse(): void
     {
@@ -24,9 +22,6 @@ class ExampleTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @return void
-     */
     public function testAvatarsCanBeUploaded(): void
     {
         Storage::fake('avatars');

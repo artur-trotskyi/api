@@ -15,18 +15,29 @@ use App\Http\Requests\Auth\AuthRegisterRequest;
 use App\Http\Resources\Auth\AuthResource;
 use App\Models\User;
 use App\Services\AuthService;
-use Illuminate\Validation\ValidationException;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\PersonalAccessToken;
 use Symfony\Component\HttpFoundation\Response;
 
 class SanctumAuthController extends AuthBaseController
 {
     private AuthService $authService;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct(
+        AuthService $authService
+    ) {
+        $this->authService = $authService;
+    }
 
     /**
      * Get the middleware that should be assigned to the controller.
@@ -41,23 +52,7 @@ class SanctumAuthController extends AuthBaseController
     }
 
     /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct
-    (
-        AuthService $authService
-    )
-    {
-        $this->authService = $authService;
-    }
-
-    /**
      * Register a new user.
-     *
-     * @param AuthRegisterRequest $request
-     * @return AuthResource
      */
     public function register(AuthRegisterRequest $request): AuthResource
     {
@@ -82,8 +77,6 @@ class SanctumAuthController extends AuthBaseController
     /**
      * Log a user and get a token via given credentials.
      *
-     * @param AuthLoginRequest $request
-     * @return AuthResource
      * @throws AuthenticationException
      * @throws ValidationException
      */
@@ -92,7 +85,7 @@ class SanctumAuthController extends AuthBaseController
         $loginRequestData = $request->validated();
 
         $user = User::where('email', $loginRequestData['email'])->first();
-        if (!$user || !Hash::check($loginRequestData['password'], $user->password)) {
+        if (! $user || ! Hash::check($loginRequestData['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'email' => [ExceptionMessagesEnum::TheProvidedCredentialsAreIncorrect->message()],
             ]);
@@ -114,13 +107,12 @@ class SanctumAuthController extends AuthBaseController
     /**
      * Get the authenticated user.
      *
-     * @return AuthResource
      * @throws AuthenticationException
      */
     public function me(): AuthResource
     {
         $user = Auth::guard('sanctum')->user();
-        if (!$user) {
+        if (! $user) {
             throw new AuthenticationException(ExceptionMessagesEnum::AuthenticationRequired->message());
         }
 
@@ -134,15 +126,15 @@ class SanctumAuthController extends AuthBaseController
     /**
      * Log the user out (Invalidate the token).
      *
-     * @return AuthResource
      * @throws AuthenticationException
      * @throws Exception
      */
     public function logout(): AuthResource
     {
         $refreshToken = request()->cookie('refreshToken') ?? null;
-        if (!$refreshToken) {
+        if (! $refreshToken) {
             $cookie = cookie()->forget('refreshToken');
+
             return AuthResource::make([], ResourceMessagesEnum::AlreadyLoggedOut->message())
                 ->setCookie($cookie);
         }
@@ -165,14 +157,13 @@ class SanctumAuthController extends AuthBaseController
     /**
      * Refresh access token.
      *
-     * @return AuthResource
      * @throws AuthenticationException
      * @throws Exception
      */
     public function refresh(): AuthResource
     {
         $user = Auth::guard('sanctum')->user();
-        if (!$user) {
+        if (! $user) {
             throw new AuthenticationException(ExceptionMessagesEnum::AuthenticationRequired->message());
         }
 

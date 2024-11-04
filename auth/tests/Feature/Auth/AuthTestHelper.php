@@ -8,27 +8,20 @@ use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthTestHelper
 {
-    static array $loginSuccessBody = [
+    public static array $loginSuccessBody = [
         'accessToken',
         'user' => [
             'id',
             'email',
-        ]
+        ],
     ];
 
-    /**
-     * @return User
-     */
-    static function mockUser(): User
+    public static function mockUser(): User
     {
         return User::factory()->create();
     }
 
-    /**
-     * @param User $userModel
-     * @return void
-     */
-    static function clearUser(User $userModel): void
+    public static function clearUser(User $userModel): void
     {
         $userModel->tokens()->delete();
         $userModel->delete();
@@ -40,7 +33,7 @@ class AuthTestHelper
      *     refreshToken: string,
      * }
      */
-    static function generateTokens(User $user): array
+    public static function generateTokens(User $user): array
     {
         $atExpireTime = now()->addMinutes(config('sanctum.expiration'));
         $rtExpireTime = now()->addMinutes(config('sanctum.rt_expiration'));
@@ -54,11 +47,7 @@ class AuthTestHelper
         ];
     }
 
-    /**
-     * @param string $accessToken
-     * @return bool
-     */
-    static function verifyAccessToken(string $accessToken): bool
+    public static function verifyAccessToken(string $accessToken): bool
     {
         $tokenInDb = PersonalAccessToken::findToken($accessToken);
 

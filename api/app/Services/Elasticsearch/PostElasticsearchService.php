@@ -12,15 +12,13 @@ class PostElasticsearchService extends BaseElasticsearchService
     /**
      * Create a new PostElasticsearchService instance.
      *
-     * @param PostElasticsearchRepository $repo The Elasticsearch repository for posts.
-     * @param PostRepository $postRepository The repository for managing posts.
+     * @param  PostElasticsearchRepository  $repo  The Elasticsearch repository for posts.
+     * @param  PostRepository  $postRepository  The repository for managing posts.
      */
-    public function __construct
-    (
+    public function __construct(
         PostElasticsearchRepository $repo,
-        PostRepository              $postRepository
-    )
-    {
+        PostRepository $postRepository
+    ) {
         $this->repo = $repo;
         $this->postRepository = $postRepository;
     }
@@ -28,7 +26,7 @@ class PostElasticsearchService extends BaseElasticsearchService
     /**
      * Prepare bulk data for indexing all posts.
      *
-     * @param string $searchIndex The name of the Elasticsearch index.
+     * @param  string  $searchIndex  The name of the Elasticsearch index.
      * @return array The prepared bulk data.
      */
     public function prepareBulkData(string $searchIndex): array
@@ -39,7 +37,7 @@ class PostElasticsearchService extends BaseElasticsearchService
                 'index' => [
                     '_index' => $searchIndex,
                     '_id' => $post->getKey(),
-                ]
+                ],
             ];
             $bulkData['body'][] = [
                 'user_id' => $post->user_id,

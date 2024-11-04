@@ -5,14 +5,17 @@ namespace App\Dto;
 class PostStoreDto
 {
     public int $user_id;
+
     public string $title;
+
     public string $content;
+
     public array $tags;
 
     /**
      * PostFilterDto constructor.
      *
-     * @param array $data An associative array with data for store posts.
+     * @param  array  $data  An associative array with data for store posts.
      */
     public function __construct(array $data)
     {

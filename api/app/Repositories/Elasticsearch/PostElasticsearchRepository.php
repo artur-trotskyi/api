@@ -10,7 +10,7 @@ class PostElasticsearchRepository extends BaseElasticsearchRepository
      * Repo Constructor
      * Override to clarify typehinted model.
      *
-     * @param Post $model Repo DB ORM Model
+     * @param  Post  $model  Repo DB ORM Model
      */
     public function __construct(Post $model)
     {
@@ -37,16 +37,11 @@ class PostElasticsearchRepository extends BaseElasticsearchRepository
     /**
      * Perform the search on Elasticsearch for Post model.
      *
-     * @param string|null $query The search query.
-     * @param int $itemsPerPage
-     * @param int $page
-     * @param array $strictFilters
-     * @param string|null $sortBy
-     * @param string|null $orderBy
-     * @param array $fields Fields to search within.
+     * @param  string|null  $query  The search query.
+     * @param  array  $fields  Fields to search within.
      * @return array The raw search results from Elasticsearch.
      */
-    protected function searchOnElasticsearch(string|null $query, int $itemsPerPage, int $page, array $strictFilters, string|null $sortBy, string|null $orderBy, array $fields): array
+    protected function searchOnElasticsearch(?string $query, int $itemsPerPage, int $page, array $strictFilters, ?string $sortBy, ?string $orderBy, array $fields): array
     {
         return parent::searchOnElasticsearch($query, $itemsPerPage, $page, $strictFilters, $sortBy, $orderBy, ['title^5', 'content', 'tags']);
     }

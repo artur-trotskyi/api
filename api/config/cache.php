@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Str;
-
 return [
 
     /*
@@ -106,7 +104,7 @@ return [
     'prefix' => env('CACHE_PREFIX') . '_',
 
     'tags' => [
-        'users' => 'users'
+        'users' => 'users',
     ],
 
     'ttl' => 60 * 60,

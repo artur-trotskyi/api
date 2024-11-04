@@ -16,8 +16,7 @@ class ElasticsearchObserver
     /**
      * Handle the model's saved event.
      *
-     * @param mixed $model The model that was saved.
-     * @return void
+     * @param  mixed  $model  The model that was saved.
      */
     public function saved(mixed $model): void
     {
@@ -27,8 +26,7 @@ class ElasticsearchObserver
     /**
      * Handle the model's deleted event.
      *
-     * @param mixed $model The model that was deleted.
-     * @return void
+     * @param  mixed  $model  The model that was deleted.
      */
     public function deleted(mixed $model): void
     {

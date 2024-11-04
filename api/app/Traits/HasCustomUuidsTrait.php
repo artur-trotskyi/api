@@ -18,18 +18,17 @@ trait HasCustomUuidsTrait
      * Retrieve the model for a bound value.
      *
      * @param Model|Relation< $query *, *, *>  $query
-     * @param mixed $value
-     * @param string|null $field
-     * @return Builder
+     * @param  mixed  $value
+     * @param  string|null  $field
      *
      * @throws ModelNotFoundException
      */
     public function resolveRouteBindingQuery($query, $value, $field = null): Builder
     {
-        if ($field && in_array($field, $this->uniqueIds()) && !Str::isUuid($value)) {
+        if ($field && in_array($field, $this->uniqueIds()) && ! Str::isUuid($value)) {
             throw new ModelNotFoundException(ExceptionMessagesEnum::InvalidUuidWithField->message());
         }
-        if (!$field && in_array($this->getRouteKeyName(), $this->uniqueIds()) && !Str::isUuid($value)) {
+        if (! $field && in_array($this->getRouteKeyName(), $this->uniqueIds()) && ! Str::isUuid($value)) {
             throw new ModelNotFoundException(ExceptionMessagesEnum::InvalidUuidForRouteKey->message());
         }
 

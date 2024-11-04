@@ -44,39 +44,23 @@ class Post extends Model
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Get the index name for Elasticsearch.
      */
-    protected function casts(): array
+    public static function getSearchIndex(): string
     {
-        return [
-            'tags' => 'json',
-        ];
+        return (new Post())->getTable();
     }
 
-    /**
-     * @param $value
-     * @return string
-     */
     public function getCreatedAtAttribute($value): string
     {
         return Carbon::parse($value)->toDateTimeString();
     }
 
-    /**
-     * @param $value
-     * @return string
-     */
     public function getUpdatedAtAttribute($value): string
     {
         return Carbon::parse($value)->toDateTimeString();
     }
 
-    /**
-     * @param $value
-     * @return string
-     */
     public function getDeletedAtAttribute($value): string
     {
         return Carbon::parse($value)->toDateTimeString();
@@ -84,8 +68,6 @@ class Post extends Model
 
     /**
      * Converts the model into a format suitable for indexing in Elasticsearch.
-     *
-     * @return array
      */
     public function toElasticsearchDocumentArray(): array
     {
@@ -99,21 +81,20 @@ class Post extends Model
         ];
     }
 
-    /**
-     * Get the index name for Elasticsearch.
-     *
-     * @return string
-     */
-    public static function getSearchIndex(): string
-    {
-        return (new Post)->getTable();
-    }
-
-    /**
-     * @return BelongsTo
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'tags' => 'json',
+        ];
     }
 }

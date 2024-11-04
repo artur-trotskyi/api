@@ -12,9 +12,6 @@ class LoginTest extends TestCase
     use RefreshDatabase;
     use WithoutDeprecationHandlingTrait;
 
-    /**
-     * @return void
-     */
     public function testCannotLoginWithoutRequiredFields(): void
     {
         $response = $this->postJson(route('auth.login'));
@@ -32,9 +29,6 @@ class LoginTest extends TestCase
         ]);
     }
 
-    /**
-     * @return void
-     */
     public function testCannotLoginWithWrongPassword(): void
     {
         $user = AuthTestHelper::mockUser();
@@ -49,7 +43,7 @@ class LoginTest extends TestCase
             'message' => 'The given data was invalid.',
             'data' => [
                 'errors' => [
-                    'The provided credentials are incorrect.'
+                    'The provided credentials are incorrect.',
                 ],
             ],
         ]);
@@ -57,9 +51,6 @@ class LoginTest extends TestCase
         AuthTestHelper::clearUser($user);
     }
 
-    /**
-     * @return void
-     */
     public function testCannotLoginWithWrongEmail(): void
     {
         $response = $this->postJson(route('auth.login'), [
@@ -71,16 +62,15 @@ class LoginTest extends TestCase
         $response->assertJson([
             'success' => false,
             'message' => 'The given data was invalid.',
-            "data" => [
-                "errors" => [
-                    "The selected email is invalid."
-                ]
-            ]
+            'data' => [
+                'errors' => [
+                    'The selected email is invalid.',
+                ],
+            ],
         ]);
     }
 
     /**
-     * @return void
      * @throws Throwable
      */
     public function testCanLogin(): void
@@ -99,7 +89,7 @@ class LoginTest extends TestCase
         $response->assertJsonStructure([
             'success',
             'message',
-            'data' => AuthTestHelper::$loginSuccessBody
+            'data' => AuthTestHelper::$loginSuccessBody,
         ]);
 
         $accessToken = $response->decodeResponseJson()['data']['accessToken'];
@@ -109,7 +99,6 @@ class LoginTest extends TestCase
     }
 
     /**
-     * @return void
      * @throws Throwable
      */
     public function testCanRefreshToken(): void
@@ -133,8 +122,8 @@ class LoginTest extends TestCase
             'success',
             'message',
             'data' => [
-                'accessToken'
-            ]
+                'accessToken',
+            ],
         ]);
 
         $accessToken = $response->decodeResponseJson()['data']['accessToken'];
@@ -144,7 +133,6 @@ class LoginTest extends TestCase
     }
 
     /**
-     * @return void
      * @throws Throwable
      */
     public function testCanRefreshTokenAfterLogin(): void
@@ -177,8 +165,8 @@ class LoginTest extends TestCase
             'success',
             'message',
             'data' => [
-                'accessToken'
-            ]
+                'accessToken',
+            ],
         ]);
 
         $accessToken = $response->decodeResponseJson()['data']['accessToken'];
@@ -187,9 +175,6 @@ class LoginTest extends TestCase
         AuthTestHelper::clearUser($user);
     }
 
-    /**
-     * @return void
-     */
     public function testAccessTokenExpiration(): void
     {
         $user = AuthTestHelper::mockUser(true);
@@ -209,9 +194,6 @@ class LoginTest extends TestCase
         AuthTestHelper::clearUser($user);
     }
 
-    /**
-     * @return void
-     */
     public function testRefreshTokenExpiration(): void
     {
         $user = AuthTestHelper::mockUser();
@@ -225,7 +207,6 @@ class LoginTest extends TestCase
             ->withUnencryptedCookie('refreshToken', $tokens['refreshToken'])
             ->withHeader('Authorization', 'Bearer ' . $tokens['accessToken'])
             ->postJson(route('auth.refresh'));
-
 
         $response->assertStatus(401);
         $response->assertJson([

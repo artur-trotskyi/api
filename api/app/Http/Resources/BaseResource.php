@@ -11,17 +11,17 @@ use Symfony\Component\HttpFoundation\Response;
 class BaseResource extends JsonResource
 {
     protected string $message;
+
     protected int $statusCode;
+
     protected bool $success;
 
-    public function __construct
-    (
-        mixed  $resource,
+    public function __construct(
+        mixed $resource,
         string $message = ResourceMessagesEnum::DefaultSuccessfully->value,
-        int    $statusCode = Response::HTTP_OK,
-        bool   $success = true
-    )
-    {
+        int $statusCode = Response::HTTP_OK,
+        bool $success = true
+    ) {
         parent::__construct($resource);
         $this->message = $message;
         $this->statusCode = $statusCode;
@@ -39,21 +39,7 @@ class BaseResource extends JsonResource
     }
 
     /**
-     * @param Request $request
-     * @return array
-     */
-    private function withResponseData(Request $request): array
-    {
-        return [
-            'success' => $this->success,
-            'message' => $this->message,
-            'data' => $this->toArray($request),
-        ];
-    }
-
-    /**
-     * @param Request $request
-     * @return JsonResponse
+     * @param  Request  $request
      */
     public function toResponse($request): JsonResponse
     {
@@ -61,5 +47,14 @@ class BaseResource extends JsonResource
             $this->withResponseData($request),
             $this->statusCode
         );
+    }
+
+    private function withResponseData(Request $request): array
+    {
+        return [
+            'success' => $this->success,
+            'message' => $this->message,
+            'data' => $this->toArray($request),
+        ];
     }
 }

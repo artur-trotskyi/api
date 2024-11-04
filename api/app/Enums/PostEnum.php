@@ -44,7 +44,7 @@ enum PostEnum: string
     {
         return [
             self::Title->message(),
-            self::Content->message()
+            self::Content->message(),
         ];
     }
 
@@ -61,8 +61,8 @@ enum PostEnum: string
     public static function itemsPerPage(): array
     {
         return [
-            'min' => (int)self::MinItemsPerPage->message(),
-            'max' => (int)self::MaxItemsPerPage->message(),
+            'min' => (int) self::MinItemsPerPage->message(),
+            'max' => (int) self::MaxItemsPerPage->message(),
         ];
     }
 }

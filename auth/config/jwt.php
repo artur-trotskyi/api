@@ -101,7 +101,7 @@ return [
     |
     */
 
-    'ttl' => (int)env('ACCESS_TOKEN_EXPIRATION_TIME', 15),
+    'ttl' => (int) env('ACCESS_TOKEN_EXPIRATION_TIME', 15),
 
     /*
     |--------------------------------------------------------------------------
@@ -120,7 +120,7 @@ return [
     |
     */
 
-    'refresh_ttl' => (int)env('JWT_REFRESH_TTL', 20160),
+    'refresh_ttl' => (int) env('JWT_REFRESH_TTL', 20160),
 
     /*
     |--------------------------------------------------------------------------

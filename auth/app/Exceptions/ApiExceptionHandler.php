@@ -19,13 +19,13 @@ use Throwable;
 class ApiExceptionHandler
 {
     protected array $errors = [];
+
     protected string $message = '';
+
     protected int $code = Response::HTTP_NOT_FOUND;
 
     /**
      * Constructor for exception handling
-     *
-     * @param Throwable $exception
      */
     public function __construct(Throwable $exception)
     {
@@ -34,8 +34,6 @@ class ApiExceptionHandler
 
     /**
      * Handle exceptions and set the appropriate message and code
-     *
-     * @param Throwable $exception
      */
     public function handle(Throwable $exception): void
     {
@@ -85,13 +83,11 @@ class ApiExceptionHandler
 
     /**
      * Render the response for the API.
-     *
-     * @param Request $request
-     * @return ErrorResource
      */
     public function render(Request $request): ErrorResource
     {
         $errorData = ['errors' => $this->errors];
+
         return new ErrorResource(
             $errorData,
             $this->message,

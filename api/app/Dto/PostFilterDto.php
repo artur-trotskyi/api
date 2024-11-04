@@ -5,18 +5,25 @@ namespace App\Dto;
 class PostFilterDto
 {
     public ?string $q;
+
     public int $itemsPerPage;
+
     public int $page;
+
     public ?string $title;
+
     public ?string $content;
+
     public ?string $tags;
+
     public ?string $sortBy;
+
     public ?string $orderBy;
 
     /**
      * PostFilterDto constructor.
      *
-     * @param array $data An associative array with data for filtering posts.
+     * @param  array  $data  An associative array with data for filtering posts.
      */
     public function __construct(array $data)
     {

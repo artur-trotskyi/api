@@ -12,9 +12,7 @@ class TransformApiRequestMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure(Request): (Response) $next
-     * @return Response
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -30,9 +28,6 @@ class TransformApiRequestMiddleware
 
     /**
      * Transform keys of an array to snake_case.
-     *
-     * @param array $input
-     * @return array
      */
     private function transformKeysToSnakeCase(array $input): array
     {
@@ -41,6 +36,7 @@ class TransformApiRequestMiddleware
             $snakeKey = Str::snake($key);
             $result[$snakeKey] = is_array($value) ? $this->transformKeysToSnakeCase($value) : $value;
         }
+
         return $result;
     }
 }

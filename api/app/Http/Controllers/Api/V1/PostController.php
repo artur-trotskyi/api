@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 class PostController extends Controller
 {
     private PostService $postService;
+
     private PostElasticsearchService $postElasticsearchService;
 
     /**
@@ -25,21 +26,16 @@ class PostController extends Controller
      *
      * @return void
      */
-    public function __construct
-    (
-        PostService              $postService,
+    public function __construct(
+        PostService $postService,
         PostElasticsearchService $postElasticsearchService
-    )
-    {
+    ) {
         $this->postService = $postService;
         $this->postElasticsearchService = $postElasticsearchService;
     }
 
     /**
      * Display a listing of the resource.
-     *
-     * @param PostFilterRequest $request
-     * @return PostCollection
      */
     public function index(PostFilterRequest $request): PostCollection
     {
@@ -60,9 +56,6 @@ class PostController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param PostStoreRequest $request
-     * @return PostResource
      */
     public function store(PostStoreRequest $request): PostResource
     {
@@ -79,9 +72,6 @@ class PostController extends Controller
 
     /**
      * Display the specified resource.
-     *
-     * @param string $id
-     * @return PostResource
      */
     public function show(string $id): PostResource
     {
@@ -92,10 +82,6 @@ class PostController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param PostUpdateRequest $request
-     * @param Post $post
-     * @return PostResource
      */
     public function update(PostUpdateRequest $request, Post $post): PostResource
     {
@@ -113,9 +99,6 @@ class PostController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param Post $post
-     * @return PostResource
      */
     public function destroy(Post $post): PostResource
     {

@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
 use Tests\Traits\WithoutDeprecationHandlingTrait;
 
 class DeprecatedMethodTest extends TestCase

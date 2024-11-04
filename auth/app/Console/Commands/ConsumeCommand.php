@@ -38,8 +38,8 @@ class ConsumeCommand extends Command
         $this->info("[x] Waiting for messages in 'auth' queue...");
 
         // Callback function to process incoming messages
-        $callback = function (AMQPMessage $msg) use ($channel) {
-            $this->info("[x] Received message: " . $msg->getBody());
+        $callback = function (AMQPMessage $msg) use ($channel): void {
+            $this->info('[x] Received message: ' . $msg->getBody());
 
             // Process the request (e.g., issuing a token)
             $response = ['token' => bin2hex(random_bytes(16))];
@@ -52,7 +52,7 @@ class ConsumeCommand extends Command
 
             // Send the response to the queue specified in reply_to
             $channel->basic_publish($replyMsg, '', $msg->get('reply_to'));
-            $this->info("[x] Sent response for Correlation ID: " . $msg->get('correlation_id'));
+            $this->info('[x] Sent response for Correlation ID: ' . $msg->get('correlation_id'));
         };
 
         // Consume messages from the 'auth' queue
@@ -67,11 +67,6 @@ class ConsumeCommand extends Command
         $this->closeChannelAndConnection($channel, $connection);
     }
 
-    /**
-     * @param $channel
-     * @param $connection
-     * @return void
-     */
     private function closeChannelAndConnection($channel, $connection): void
     {
         // Close the channel if it exists
@@ -79,7 +74,7 @@ class ConsumeCommand extends Command
             try {
                 $channel->close();
             } catch (Exception $e) {
-                $this->error("[x] Error closing channel: " . $e->getMessage());
+                $this->error('[x] Error closing channel: ' . $e->getMessage());
             }
         }
         // Close the connection if it exists
@@ -87,7 +82,7 @@ class ConsumeCommand extends Command
             try {
                 $connection->close();
             } catch (Exception $e) {
-                $this->error("[x] Error closing connection: " . $e->getMessage());
+                $this->error('[x] Error closing connection: ' . $e->getMessage());
             }
         }
     }

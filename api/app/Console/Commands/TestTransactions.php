@@ -47,7 +47,6 @@ class TestTransactions extends Command
                 'tags' => ['php', 'javascript'],
             ]);
 
-
             // Create the second post (modify data to simulate different scenarios)
             $newPost2 = $this->postService->create([
                 'user_id' => 1111111,
@@ -61,6 +60,7 @@ class TestTransactions extends Command
         } catch (Exception $e) {
             DB::rollBack();
             $this->error('Error creating posts: ' . $e->getMessage());
+
             return self::FAILURE;
         }
 

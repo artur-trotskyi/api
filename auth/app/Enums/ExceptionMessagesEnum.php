@@ -30,10 +30,6 @@ enum ExceptionMessagesEnum: string
     case CouldNotRefreshToken = 'Could not refresh token.';
     case TooManyRequests = 'You have exceeded the allowed number of requests.';
 
-    /**
-     * @param string $driver
-     * @return string
-     */
     public static function unsupportedDriverMessage(string $driver): string
     {
         return self::UnsupportedAuthDriver->message() . ": {$driver}";

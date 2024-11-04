@@ -1,4 +1,5 @@
 <?php
+
 // https://medium.com/@a3rxander/how-to-implement-jwt-authentication-in-laravel-11-26e6d7be5a41
 
 namespace App\Http\Controllers\Auth;
@@ -22,6 +23,13 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class JWTAuthController extends AuthBaseController implements HasMiddleware
 {
     /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct() {}
+
+    /**
      * Get the middleware that should be assigned to the controller.
      */
     public static function middleware(): array
@@ -32,20 +40,7 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
     }
 
     /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
-
-    /**
      * Register a new user.
-     *
-     * @param AuthRegisterRequest $request
-     * @return AuthResource
      */
     public function register(AuthRegisterRequest $request): AuthResource
     {
@@ -66,8 +61,6 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
     /**
      * Log a user and get a token via given credentials.
      *
-     * @param AuthLoginRequest $request
-     * @return AuthResource
      * @throws AuthenticationException
      * @throws Exception
      */
@@ -76,7 +69,7 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
         $credentials = $request->only('email', 'password');
         try {
             $token = JWTAuth::attempt($credentials);
-            if (!$token) {
+            if (! $token) {
                 throw new AuthenticationException(ExceptionMessagesEnum::TheProvidedCredentialsAreIncorrect->message());
             }
 
@@ -100,14 +93,13 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
     /**
      * Get the authenticated user.
      *
-     * @return AuthResource
      * @throws AuthenticationException
      */
     public function me(): AuthResource
     {
         try {
             $user = JWTAuth::parseToken()->authenticate();
-            if (!$user) {
+            if (! $user) {
                 throw new AuthenticationException(ExceptionMessagesEnum::AuthenticationRequired->message());
             }
         } catch (JWTException $e) {
@@ -123,8 +115,6 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
 
     /**
      * Log the user out (Invalidate the token).
-     *
-     * @return AuthResource
      */
     public function logout(): AuthResource
     {
@@ -136,7 +126,6 @@ class JWTAuthController extends AuthBaseController implements HasMiddleware
     /**
      * Refresh access token.
      *
-     * @return AuthResource
      * @throws Exception
      */
     public function refresh(): AuthResource

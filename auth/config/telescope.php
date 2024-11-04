@@ -118,7 +118,7 @@ return [
     ],
 
     'ignore_commands' => [
-        //
+
     ],
 
     /*
