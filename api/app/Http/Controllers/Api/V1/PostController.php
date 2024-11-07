@@ -13,6 +13,7 @@ use App\Models\Post;
 use App\Services\Elasticsearch\PostElasticsearchService;
 use App\Services\PostService;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class PostController extends Controller
@@ -50,6 +51,8 @@ class PostController extends Controller
 
         $posts = $this->postElasticsearchService->search($q, $itemsPerPage, $page, ['title' => $title, 'content' => $content], $sortBy, $orderBy);
         //   $posts = $this->postService->filter($q, $itemsPerPage, $page, ['title' => $title, 'content' => $content], $sortBy, $orderBy);
+
+        Log::info('Post filter applied.', ['$postFilterDto' => $postFilterDto]);
 
         return new PostCollection($posts, ResourceMessagesEnum::DataRetrievedSuccessfully->message());
     }

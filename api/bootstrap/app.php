@@ -1,6 +1,7 @@
 <?php
 
 use App\Exceptions\ApiExceptionHandler;
+use App\Http\Middleware\AddContext;
 use App\Http\Middleware\TransformApiRequestMiddleware;
 use App\Http\Middleware\TransformApiResponseMiddleware;
 use Illuminate\Foundation\Application;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('api', [
             TransformApiRequestMiddleware::class,
             TransformApiResponseMiddleware::class,
+            AddContext::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

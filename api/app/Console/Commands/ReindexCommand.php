@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Models\Post;
 use App\Services\Elasticsearch\PostElasticsearchService;
-use App\Services\PostService;
 use Exception;
 use Illuminate\Console\Command;
 
@@ -24,30 +23,14 @@ class ReindexCommand extends Command
      */
     protected $description = 'Indexes all Posts to Elasticsearch';
 
-    protected PostService $postService;
-
-    protected PostElasticsearchService $elasticsearchService;
-
-    /**
-     * Create a new command instance.
-     */
-    public function __construct(
-        PostService $postService,
-        PostElasticsearchService $elasticsearchService
-    ) {
-        $this->postService = $postService;
-        $this->elasticsearchService = $elasticsearchService;
-        parent::__construct();
-    }
-
     /**
      * Execute the console command.
      */
-    public function handle(): int
+    public function handle(PostElasticsearchService $elasticsearchService): int
     {
         try {
             // Check the connection to Elasticsearch
-            if (! $this->elasticsearchService->checkConnection()) {
+            if (! $elasticsearchService->checkConnection()) {
                 $this->error('Could not connect to Elasticsearch.');
 
                 return self::FAILURE;
@@ -55,8 +38,8 @@ class ReindexCommand extends Command
 
             // Check if the index exists and create it if necessary
             $searchIndex = Post::getSearchIndex();
-            if (! $this->elasticsearchService->indexExists($searchIndex)) {
-                $isIndexCreated = $this->elasticsearchService->createIndex($searchIndex);
+            if (! $elasticsearchService->indexExists($searchIndex)) {
+                $isIndexCreated = $elasticsearchService->createIndex($searchIndex);
                 if (! $isIndexCreated) {
                     $this->error('Failed to create index.');
 
@@ -66,7 +49,7 @@ class ReindexCommand extends Command
             }
 
             // Deleted all documents in the Posts index.
-            if (! $this->elasticsearchService->deleteAllDocuments($searchIndex)) {
+            if (! $elasticsearchService->deleteAllDocuments($searchIndex)) {
                 $this->error('Failed to delete all documents in the Posts index.');
 
                 return self::FAILURE;
@@ -75,9 +58,9 @@ class ReindexCommand extends Command
 
             // Use bulk indexing for better performance and perform bulk indexing
             $this->info('Indexing all Posts. This might take a while...');
-            $bulkData = $this->elasticsearchService->prepareBulkData($searchIndex);
+            $bulkData = $elasticsearchService->prepareBulkData($searchIndex);
             if (! empty($bulkData)) {
-                if (! $this->elasticsearchService->bulkIndexDocuments($bulkData)) {
+                if (! $elasticsearchService->bulkIndexDocuments($bulkData)) {
                     $this->error('Failed to perform bulk indexing.');
 
                     return self::FAILURE;
