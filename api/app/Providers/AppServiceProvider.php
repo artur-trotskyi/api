@@ -2,10 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\Post;
+use App\Policies\PostPolicy;
 use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\ClientBuilder;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -35,6 +39,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureRateLimiting();
+        Gate::policy(Post::class, PostPolicy::class);
+
+        if (! Auth::check() && app()->isLocal()) {
+            Auth::loginUsingId(1);
+        }
     }
 
     /**

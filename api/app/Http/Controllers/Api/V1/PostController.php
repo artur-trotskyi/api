@@ -12,27 +12,31 @@ use App\Http\Resources\Post\PostResource;
 use App\Models\Post;
 use App\Services\Elasticsearch\PostElasticsearchService;
 use App\Services\PostService;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
-class PostController extends Controller
+class PostController extends Controller implements HasMiddleware
 {
-    private PostService $postService;
-
-    private PostElasticsearchService $postElasticsearchService;
-
     /**
      * Create a new controller instance.
      *
      * @return void
      */
     public function __construct(
-        PostService $postService,
-        PostElasticsearchService $postElasticsearchService
-    ) {
-        $this->postService = $postService;
-        $this->postElasticsearchService = $postElasticsearchService;
+        private readonly PostService $postService,
+        private readonly PostElasticsearchService $postElasticsearchService
+    ) {}
+
+    /**
+     * Get the middleware that should be assigned to the controller.
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('can:modify,post', only: ['update', 'destroy']),
+        ];
     }
 
     /**
@@ -88,7 +92,6 @@ class PostController extends Controller
      */
     public function update(PostUpdateRequest $request, Post $post): PostResource
     {
-        Gate::authorize('modify', $post);
         $postUpdateDto = $request->getDto();
         $this->postService->update($post->getAttribute('id'), [
             'user_id' => $postUpdateDto->user_id,
@@ -105,7 +108,6 @@ class PostController extends Controller
      */
     public function destroy(Post $post): PostResource
     {
-        Gate::authorize('modify', $post);
         $this->postService->destroy($post->getAttribute('id'));
 
         return new PostResource([], ResourceMessagesEnum::DataDeletedSuccessfully->message());
