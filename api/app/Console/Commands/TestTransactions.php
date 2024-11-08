@@ -23,24 +23,16 @@ class TestTransactions extends Command
      */
     protected $description = 'Test transactions by creating posts';
 
-    protected PostService $postService;
-
-    public function __construct(PostService $postService)
-    {
-        parent::__construct();
-        $this->postService = $postService;
-    }
-
     /**
      * Execute the console command.
      */
-    public function handle(): int
+    public function handle(PostService $postService): int
     {
         DB::beginTransaction();
 
         try {
             // Create the first post
-            $newPost1 = $this->postService->create([
+            $newPost1 = $postService->create([
                 'user_id' => 1,
                 'title' => 'First Post 1',
                 'content' => 'Content of the first post',
@@ -48,7 +40,7 @@ class TestTransactions extends Command
             ]);
 
             // Create the second post (modify data to simulate different scenarios)
-            $newPost2 = $this->postService->create([
+            $newPost2 = $postService->create([
                 'user_id' => 1111111,
                 'title' => 'Second Post 1111111',
                 'content' => 'Content of the second post',
