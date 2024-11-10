@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Observers\PostObserver;
 use App\Traits\HasCustomUuidsTrait;
 use App\Traits\Searchable;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -51,21 +50,6 @@ class Post extends Model
         return (new Post())->getTable();
     }
 
-    public function getCreatedAtAttribute($value): string
-    {
-        return Carbon::parse($value)->toDateTimeString();
-    }
-
-    public function getUpdatedAtAttribute($value): string
-    {
-        return Carbon::parse($value)->toDateTimeString();
-    }
-
-    public function getDeletedAtAttribute($value): string
-    {
-        return Carbon::parse($value)->toDateTimeString();
-    }
-
     /**
      * Converts the model into a format suitable for indexing in Elasticsearch.
      */
@@ -95,6 +79,9 @@ class Post extends Model
     {
         return [
             'tags' => 'json',
+            'created_at' => 'datetime:Y-m-d H:i:s',
+            'updated_at' => 'datetime:Y-m-d H:i:s',
+            'deleted_at' => 'datetime:Y-m-d H:i:s',
         ];
     }
 }

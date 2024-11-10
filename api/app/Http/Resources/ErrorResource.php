@@ -3,22 +3,37 @@
 namespace App\Http\Resources;
 
 use App\Enums\ResourceMessagesEnum;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class ErrorResource extends BaseResource
 {
-    protected string $message;
-
-    protected int $statusCode;
-
-    protected bool $success;
-
+    /**
+     * ErrorResource constructor.
+     *
+     * @param  mixed  $resource
+     */
     public function __construct(
         $resource,
-        string $message = ResourceMessagesEnum::DefaultFailed->value,
-        int $statusCode = Response::HTTP_BAD_REQUEST,
-        bool $success = false
+        protected string $message = ResourceMessagesEnum::DefaultFailed->value,
+        protected int $statusCode = Response::HTTP_BAD_REQUEST,
+        protected bool $success = false
     ) {
-        parent::__construct($resource, $message, $statusCode, $success);
+        parent::__construct($resource);
+    }
+
+    /**
+     * Set additional data for the response.
+     */
+    public function withResponse(Request $request, JsonResponse $response): void
+    {
+        $response->setStatusCode($this->statusCode);
+
+        $response->setData([
+            'success' => $this->success,
+            'message' => $this->message,
+            'data' => $this->resource,
+        ]);
     }
 }

@@ -4,9 +4,9 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class BaseResource extends JsonResource
+class BaseResourceCollection extends ResourceCollection
 {
     protected bool $success = true;
 
@@ -14,6 +14,8 @@ class BaseResource extends JsonResource
 
     /**
      * Set success and message properties.
+     *
+     * @return $this
      */
     public function withStatusMessage(bool $success, string $message): self
     {
@@ -31,7 +33,7 @@ class BaseResource extends JsonResource
         $response->setData([
             'success' => $this->success,
             'message' => $this->message,
-            'data' => $response->getData()->data,
+            'data' => $response->getData(),
         ]);
     }
 }

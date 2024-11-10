@@ -15,7 +15,6 @@ use App\Services\PostService;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\HttpFoundation\Response;
 
 class PostController extends Controller implements HasMiddleware
 {
@@ -58,7 +57,8 @@ class PostController extends Controller implements HasMiddleware
 
         Log::info('Post filter applied.', ['$postFilterDto' => $postFilterDto]);
 
-        return new PostCollection($posts, ResourceMessagesEnum::DataRetrievedSuccessfully->message());
+        return (new PostCollection($posts))
+            ->withStatusMessage(true, ResourceMessagesEnum::DataRetrievedSuccessfully->message());
     }
 
     /**
@@ -74,7 +74,8 @@ class PostController extends Controller implements HasMiddleware
             'tags' => $postStoreDto->tags,
         ]);
 
-        return new PostResource($newPost, ResourceMessagesEnum::DataCreatedSuccessfully->message(), Response::HTTP_CREATED);
+        return (new PostResource($newPost))
+            ->withStatusMessage(true, ResourceMessagesEnum::DataCreatedSuccessfully->message());
     }
 
     /**
@@ -84,7 +85,8 @@ class PostController extends Controller implements HasMiddleware
     {
         $post = $this->postService->getById($id);
 
-        return new PostResource($post, ResourceMessagesEnum::DataRetrievedSuccessfully->message());
+        return (new PostResource($post))
+            ->withStatusMessage(true, ResourceMessagesEnum::DataRetrievedSuccessfully->message());
     }
 
     /**
@@ -100,7 +102,8 @@ class PostController extends Controller implements HasMiddleware
             'tags' => $postUpdateDto->tags,
         ]);
 
-        return new PostResource([], ResourceMessagesEnum::DataUpdatedSuccessfully->message());
+        return (new PostResource([]))
+            ->withStatusMessage(true, ResourceMessagesEnum::DataUpdatedSuccessfully->message());
     }
 
     /**
@@ -110,6 +113,7 @@ class PostController extends Controller implements HasMiddleware
     {
         $this->postService->destroy($post->getAttribute('id'));
 
-        return new PostResource([], ResourceMessagesEnum::DataDeletedSuccessfully->message());
+        return (new PostResource([]))
+            ->withStatusMessage(true, ResourceMessagesEnum::DataDeletedSuccessfully->message());
     }
 }

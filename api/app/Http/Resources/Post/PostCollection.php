@@ -2,34 +2,28 @@
 
 namespace App\Http\Resources\Post;
 
-use App\Http\Resources\BaseCollection;
+use App\Http\Resources\BaseResourceCollection;
+use Illuminate\Http\Request;
 
-class PostCollection extends BaseCollection
+class PostCollection extends BaseResourceCollection
 {
+    public static $wrap = null;
+
     /**
      * Transform the resource collection into an array.
      *
      * @return array<int|string, mixed>
      */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
-        $transformedPosts = [];
-        foreach ($this->resource['items'] as $post) {
-            $transformedPosts[] = new PostResource($post);
-        }
-
-        $data = [
-            'posts' => $transformedPosts,
-            'totalPages' => $this->resource['totalPages'],
-            'totalItems' => $this->resource['totalItems'],
-            'items' => count($transformedPosts),
-            'page' => $this->resource['page'],
-        ];
+        $items = $this->collection['items'];
 
         return [
-            'success' => $this->success,
-            'message' => $this->message,
-            'data' => $data,
+            'posts' => $items,
+            'totalPages' => $this->resource['totalPages']->resource,
+            'totalItems' => $this->resource['totalItems']->resource,
+            'items' => count($items->resource),
+            'page' => $this->resource['page']->resource,
         ];
     }
 }
