@@ -46,8 +46,8 @@ class SanctumAuthController extends AuthBaseController
     {
         return [
             new Middleware('auth:sanctum', only: ['logout', 'refresh', 'me']),
-            new Middleware('ability:' . TokenAbilityEnum::ISSUE_ACCESS_TOKEN->message(), only: ['refresh']),
-            new Middleware('ability:' . TokenAbilityEnum::ACCESS_API->message(), only: ['me']),
+            new Middleware('ability:'.TokenAbilityEnum::ISSUE_ACCESS_TOKEN->message(), only: ['refresh']),
+            new Middleware('ability:'.TokenAbilityEnum::ACCESS_API->message(), only: ['me']),
         ];
     }
 

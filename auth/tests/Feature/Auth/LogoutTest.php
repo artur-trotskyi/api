@@ -21,7 +21,7 @@ class LogoutTest extends TestCase
             ->actingAs($user, 'sanctum')
             ->withUnencryptedCookie('refreshToken', $tokens['refreshToken'])
             ->withCredentials()
-            ->withHeader('Authorization', 'Bearer ' . $tokens['accessToken'])
+            ->withHeader('Authorization', 'Bearer '.$tokens['accessToken'])
             ->postJson(route('auth.logout'));
         $response->assertStatus(200);
 

@@ -114,7 +114,7 @@ class LoginTest extends TestCase
         $response = $this
             ->withUnencryptedCookie('refreshToken', $tokens['refreshToken'])
             ->withCredentials()
-            ->withHeader('Authorization', 'Bearer ' . $tokens['accessToken'])
+            ->withHeader('Authorization', 'Bearer '.$tokens['accessToken'])
             ->postJson(route('auth.refresh'));
 
         $response->assertStatus(200);
@@ -157,7 +157,7 @@ class LoginTest extends TestCase
         $response = $this
             ->withUnencryptedCookie('refreshToken', $refreshToken)
             ->withCredentials()
-            ->withHeader('Authorization', 'Bearer ' . $refreshToken)
+            ->withHeader('Authorization', 'Bearer '.$refreshToken)
             ->postJson(route('auth.refresh'));
 
         $response->assertStatus(200);
@@ -183,7 +183,7 @@ class LoginTest extends TestCase
         // Manually make access token expired
         $this->travel(config('sanctum.expiration') + 10)->minutes();
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $tokens['accessToken'])
+        $response = $this->withHeader('Authorization', 'Bearer '.$tokens['accessToken'])
             ->postJson(route('auth.me'));
 
         $response->assertStatus(401);
@@ -205,7 +205,7 @@ class LoginTest extends TestCase
         $response = $this
             ->withCredentials()
             ->withUnencryptedCookie('refreshToken', $tokens['refreshToken'])
-            ->withHeader('Authorization', 'Bearer ' . $tokens['accessToken'])
+            ->withHeader('Authorization', 'Bearer '.$tokens['accessToken'])
             ->postJson(route('auth.refresh'));
 
         $response->assertStatus(401);

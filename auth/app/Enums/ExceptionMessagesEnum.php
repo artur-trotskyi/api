@@ -32,6 +32,6 @@ enum ExceptionMessagesEnum: string
 
     public static function unsupportedDriverMessage(string $driver): string
     {
-        return self::UnsupportedAuthDriver->message() . ": {$driver}";
+        return self::UnsupportedAuthDriver->message().": {$driver}";
     }
 }
