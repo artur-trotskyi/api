@@ -25,7 +25,7 @@ final readonly class PostFilterDto
     public ?string $orderBy;
 
     /**
-     * PostFilterDto  constructor.
+     * PostFilterDto constructor.
      *
      * @param  array  $data  An associative array with data for filtering posts.
      */
